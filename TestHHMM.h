@@ -13,6 +13,7 @@ namespace hhmm{
     CPPUNIT_TEST_SUITE(TestHHMM);
     CPPUNIT_TEST(TestEmitProb);
     CPPUNIT_TEST(TestForward);
+    CPPUNIT_TEST(TestBackward);
     CPPUNIT_TEST_SUITE_END();
     HHMM* hhmm;
   public:

@@ -6,7 +6,7 @@ namespace hhmm{
   nprodHHMM::nprodHHMM(uint32_t _depth,uint32_t _stateNum,uint32_t _dim)
 
     :baseHHMM(0,nullptr),
-     transMat(_stateNum,_stateNum)
+     transMat(_stateNum,_stateNum+1)
   {
     if(_depth < 2){exit(1);}
     else if(_depth == 2){
@@ -32,7 +32,7 @@ namespace hhmm{
   nprodHHMM::nprodHHMM(uint32_t _depth,uint32_t _stateNum,              \
                        uint32_t _dim,uint32_t _level,baseHHMM* _parent)
     :baseHHMM(_level,_parent),
-     transMat(_stateNum,_stateNum)
+     transMat(_stateNum,_stateNum+1)
   {
     if(level < _depth-2){
       for(uint32_t t=0;t<_stateNum;++t){

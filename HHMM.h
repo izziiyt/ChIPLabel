@@ -34,6 +34,9 @@ namespace hhmm{
   public:
     HHMM(uint32_t,uint32_t,uint32_t);
     void forward(Sequence&,baseHHMM*,tree<upperTriangle<double>>*);
+    void backward(Sequence&,baseHHMM*,tree<upperTriangle<double>>*);
+    void auxIn(Sequence&,baseHHMM*,tree<vector<double>>*);
+    void auxOut(Sequence&,baseHHMM*,tree<vector<double>>*);
   };
 }
 

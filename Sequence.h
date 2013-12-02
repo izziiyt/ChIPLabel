@@ -4,6 +4,7 @@
 #include<vector>
 #include<Eigen/Dense>
 #include<memory>
+#include <iostream>
 
 using namespace std;
 using namespace Eigen;
@@ -109,10 +110,11 @@ namespace hhmm{
     vector<uint32_t> testV;//Fix Me.
     vector<uint32_t> S;//State sequence.
     tree<upperTriangle<double>> alpha;//forward variables
-    // diVector<double> beta;//backward bvariables
-    // vector<double> eta;//scaling variables
-    // diVector<double> xi;//gamma[t][state[t]]
-    // triVector<double> chi;//xi[t][state[t]][state[t+1]]
+    tree<upperTriangle<double>> beta;//backward// ward variables
+    // // diVector<double> beta;//backward bvariables
+    // // vector<double> eta;//scaling variables
+    // // diVector<double> xi;//gamma[t][state[t]]
+    //  triVector<double> chi;//xi[t][state[t]][state[t+1]]
   public:
 
     Sequence(vector<VectorXd> const&,uint32_t,uint32_t);
@@ -129,7 +131,8 @@ namespace hhmm{
     :len(_V.size()),
      testV(_V),
      S(_V.size()),
-     alpha(_depth,_stateNum,_V.size(),nullptr)
+     alpha(_depth,_stateNum,_V.size(),nullptr),
+     beta(_depth,_stateNum,_V.size(),nullptr)
   {}
 
   // Sequence::Sequence(vector<VectorXd> const& _V,uint32_t _stateNum,uint32_t _depth)
