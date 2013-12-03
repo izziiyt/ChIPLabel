@@ -31,7 +31,9 @@ namespace hhmm{
     nprodHHMM(uint32_t,uint32_t,uint32_t,uint32_t,baseHHMM*);
     ~nprodHHMM() = default;
     double trans(up<baseHHMM> const&);
+    double trans(baseHHMM*);
     double trans(const up<baseHHMM>&,const up<baseHHMM>&);
+    double trans(baseHHMM*,const up<baseHHMM>&);
     double trans(const up<baseHHMM>&,baseHHMM*);
     void cpyTransMat(MatrixXd const&);
   };

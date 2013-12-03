@@ -31,28 +31,44 @@ namespace hhmm{
   protected:
     diVector<T> val;
   public:
+    upperTriangle(uint32_t len,T x);
+    T& operator()(uint32_t x,uint32_t y);
+    void print() const;
+  };
 
-    upperTriangle(uint32_t len,T x)
-    {
-      for(uint32_t i=0;i<len;++i)
-        val.push_back(vector<T>(len-i,x));
-      for_each(begin(val),end(val),
-               [](vector<T>& x){x.shrink_to_fit();});
-      val.shrink_to_fit();
-    }
-
-    T& operator()(uint32_t x,uint32_t y){
-      return val[x][y-x];
-    }
-    void print() const{
-      for(uint32_t i=0;i<val.size();++i){
-        for(uint32_t j=0;j<val.size();++j){
-          if(j < i){cout << 0 << " ";}
-          else{cout << val[i][j-i] << " ";}
-        }
-        cout << endl;
+  template<typename T>
+  upperTriangle<T>::upperTriangle(uint32_t len,T x)
+  {
+    for(uint32_t i=0;i<len;++i){val.push_back(vector<T>(len-i,x));}
+    for_each(begin(val),end(val),[](vector<T>& y){y.shrink_to_fit();});
+    val.shrink_to_fit();
+  }
+  template<typename T>
+  T& upperTriangle<T>::operator()(uint32_t x,uint32_t y){
+    return val[x][y-x];
+  }
+  template<typename T>
+  void upperTriangle<T>::print() const{
+    for(uint32_t i=0;i<val.size();++i){
+      for(uint32_t j=0;j<val.size();++j){
+        if(j < i){cout << 0 << " ";}
+        else{cout << val[i][j-i] << " ";}
       }
+      cout << endl;
     }
+  }
+  
+  class parameters{
+  public:
+    upperTriangle<double> alpha;//forward variables
+    upperTriangle<double> beta;//backward ward variables
+    vector<double> etaIn;//auxiliary variables
+    vector<double> etaOut;
+    parameters(uint32_t _length)
+      :alpha(_length,0.0),
+       beta(_length,0.0),
+       etaIn(_length,0.0)
+    {}
   };
 
   template<typename T> 
@@ -71,35 +87,18 @@ namespace hhmm{
     void swp(T& _val){swap(val,_val);}
   };
 
-  // template<typename T>
-  // tree<T>::tree(uint32_t _depth,uint32_t _childNum,uint32_t _length,tree* _parent)
-  //   :parent(_parent)
-  // {
-  //   if(_depth != 1){
-  //     for(uint32_t t=0;t<_childNum;++t){
-  //       children.push_back(up<tree<T>>\
-  //                          (new tree<T>(_depth-1,_childNum,_length,this)));
-  //     }
-  //     children.shrink_to_fit();
-  //   }
-  // }
-
   template<>
-  tree<upperTriangle<double>>::tree(uint32_t _depth,uint32_t _childNum,\
-                                    uint32_t _length,tree* _parent)
-    :val(_length,0.0),
+  tree<parameters>::tree(uint32_t _depth,uint32_t _childNum,uint32_t _length,tree* _parent)
+    :val(_length),
     parent(_parent)
   {
     if(_depth != 1){
       for(uint32_t t=0;t<_childNum;++t){
-        children.push_back(up<tree<upperTriangle<double>>>
-                           (new tree<upperTriangle<double>>
-                            (_depth-1,_childNum,_length,this)));
+        children.push_back(up<tree<parameters>>(new tree<parameters>(_depth-1,_childNum,_length,this)));
       }
       children.shrink_to_fit();
     }
   }
-
 
   class Sequence{
     friend HHMM;
@@ -109,12 +108,7 @@ namespace hhmm{
     vector<VectorXd> V;//Observed sequence.
     vector<uint32_t> testV;//Fix Me.
     vector<uint32_t> S;//State sequence.
-    tree<upperTriangle<double>> alpha;//forward variables
-    tree<upperTriangle<double>> beta;//backward// ward variables
-    // // diVector<double> beta;//backward bvariables
-    // // vector<double> eta;//scaling variables
-    // // diVector<double> xi;//gamma[t][state[t]]
-    //  triVector<double> chi;//xi[t][state[t]][state[t+1]]
+    tree<parameters> param;
   public:
 
     Sequence(vector<VectorXd> const&,uint32_t,uint32_t);
@@ -122,24 +116,14 @@ namespace hhmm{
     virtual ~Sequence() = default;
     uint32_t obs(uint32_t i) const{return testV[i];}
     uint32_t size() const{return len;}
-    void clearAlpha(){};
-    void showAlpha(){alpha.print();}
-
   };
   
   Sequence::Sequence(vector<uint32_t> const& _V,uint32_t _stateNum,uint32_t _depth)
     :len(_V.size()),
      testV(_V),
      S(_V.size()),
-     alpha(_depth,_stateNum,_V.size(),nullptr),
-     beta(_depth,_stateNum,_V.size(),nullptr)
+     param(_depth,_stateNum,_V.size(),nullptr)
   {}
-
-  // Sequence::Sequence(vector<VectorXd> const& _V,uint32_t _stateNum,uint32_t _depth)
-  //   :V(_V),//Fix Me.
-  //    S(_V.size()),
-  //    alpha(_depth,_stateNum,nullptr,_stateNum)
-  // {}
 
 }
 

@@ -53,6 +53,11 @@ namespace hhmm{
     convert.insert(pair<uint64_t,uint32_t>(0,i));
   }
   
+  double nprodHHMM::trans(baseHHMM* a)
+  {
+    return transMat(convert[reinterpret_cast<uint64_t>(a)],convert[0]);
+  }
+
   double nprodHHMM::trans(up<baseHHMM> const& a)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a.get())],convert[0]);
@@ -61,6 +66,12 @@ namespace hhmm{
   double nprodHHMM::trans(const up<baseHHMM>& a,const up<baseHHMM>& b)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a.get())],
+                    convert[reinterpret_cast<uint64_t>(b.get())]);
+  }
+
+  double nprodHHMM::trans(baseHHMM* a,const up<baseHHMM>& b)
+  {
+    return transMat(convert[reinterpret_cast<uint64_t>(a)],
                     convert[reinterpret_cast<uint64_t>(b.get())]);
   }
 

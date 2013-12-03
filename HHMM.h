@@ -31,13 +31,24 @@ namespace hhmm{
     vector<Sequence> seq;
     template <typename T>
     void setIterator(myit<T>&,myit<T>&,myit<baseHHMM>&,myit<baseHHMM>&,T*,baseHHMM*);
+    void forward(Sequence&,baseHHMM*,tree<parameters>*);
+    void backward(Sequence&,baseHHMM*,tree<parameters>*);
+    void auxIn(Sequence&,baseHHMM*,tree<parameters>*);
+    void auxOut(Sequence&,baseHHMM*,tree<parameters>*);
+
   public:
     HHMM(uint32_t,uint32_t,uint32_t);
-    void forward(Sequence&,baseHHMM*,tree<upperTriangle<double>>*);
-    void backward(Sequence&,baseHHMM*,tree<upperTriangle<double>>*);
-    void auxIn(Sequence&,baseHHMM*,tree<vector<double>>*);
-    void auxOut(Sequence&,baseHHMM*,tree<vector<double>>*);
+
   };
 }
 
 #endif
+
+
+
+
+
+
+
+
+
