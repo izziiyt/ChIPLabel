@@ -28,17 +28,19 @@ namespace hhmm{
     uint32_t dim;
     uint32_t stateNum;
     uint32_t depth;
-    vector<Sequence> seq;
+    vector<up<Sequence>> seq;
     template <typename T>
     void setIterator(myit<T>&,myit<T>&,myit<baseHHMM>&,myit<baseHHMM>&,T*,baseHHMM*);
-    void forward(Sequence&,baseHHMM*,tree<parameters>*);
-    void backward(Sequence&,baseHHMM*,tree<parameters>*);
-    void auxIn(Sequence&,baseHHMM*,tree<parameters>*);
-    void auxOut(Sequence&,baseHHMM*,tree<parameters>*);
-
+    void forward(Sequence&);
+    void forward(Sequence&,baseHHMM*,parameters*);
+    void backward(Sequence&);
+    void backward(Sequence&,baseHHMM*,parameters*);
+    void auxIn(Sequence&);
+    void auxIn(Sequence&,baseHHMM*,parameters*);
+    void auxOut(Sequence&);
+    void auxOut(Sequence&,baseHHMM*,parameters*);
   public:
     HHMM(uint32_t,uint32_t,uint32_t);
-
   };
 }
 

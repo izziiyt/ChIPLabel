@@ -8,6 +8,7 @@
 #include <cfloat>
 #include <dirent.h>
 #include <fstream>
+#include <memory>
 
 namespace hhmm{
 
@@ -23,7 +24,36 @@ namespace hhmm{
 
   void TestHHMM::setUp()
   {
-    hhmm = new HHMM(3,2,2);
+    hhmm = new HHMM(2,2,3);
+
+    auto castn = [](baseHHMM* x){return dynamic_cast<nprodHHMM*>(x);};
+    auto castp = [](baseHHMM* x){return dynamic_cast<prodHHMM*>(x);};
+
+    vector<uint32_t> obs = {0,1,1};
+
+    vector<double> emit0 = {0.2,0.8};
+    vector<double> emit1 = {0.6,0.4};
+    MatrixXd trans(2,3);
+    trans << 0.5,0.4,0.1,
+      0.4,0.4,0.2;
+    MatrixXd trans2(2,3);
+    trans2 << 0.6,0.2,0.2,
+      0.2,0.7,0.1;
+
+    (hhmm->seq).push_back(up<Sequence>(new Sequence(obs,2,3)));
+    (hhmm->root).cpyTransMat(trans2);
+    castn(hhmm->root.children[0].get())->cpyTransMat(trans);
+    castn(hhmm->root.children[1].get())->cpyTransMat(trans);
+    castp(castn(hhmm->root.children[0].get())->children[0].get())->setEmit(emit0);
+    castp(castn(hhmm->root.children[0].get())->children[1].get())->setEmit(emit1);
+    castp(castn(hhmm->root.children[1].get())->children[0].get())->setEmit(emit0);
+    castp(castn(hhmm->root.children[1].get())->children[1].get())->setEmit(emit1);
+    castn(hhmm->root.children[0].get())->children[0]->setPi(0.3);
+    castn(hhmm->root.children[0].get())->children[1]->setPi(0.7);
+    castn(hhmm->root.children[1].get())->children[0]->setPi(0.3);
+    castn(hhmm->root.children[1].get())->children[1]->setPi(0.7);
+    hhmm->root.children[0]->setPi(0.4);
+    hhmm->root.children[1]->setPi(0.6); 
   }
 
   void TestHHMM::tearDown()
@@ -68,7 +98,7 @@ namespace hhmm{
     dynamic_cast<prodHHMM*>(hhmm0.root.children[1].get())->setEmit(emit1);
     hhmm0.root.children[0].get()->setPi(0.7);
     hhmm0.root.children[1].get()->setPi(0.3);
-    hhmm0.forward(seq,&(hhmm0.root),&(seq.alpha));
+    //hhmm0.forward(seq,&(hhmm0.root),&(seq.alpha));
     // seq.alpha.print();
     // seq.alpha.children[0]->print();
     // seq.alpha.children[1]->print();
@@ -103,15 +133,47 @@ namespace hhmm{
     castn(hhmm0.root.children[1].get())->children[1]->setPi(0.7);
     hhmm0.root.children[0]->setPi(0.4);
     hhmm0.root.children[1]->setPi(0.4);
-    hhmm0.backward(seq,&(hhmm0.root),&(seq.beta));
+    //hhmm0.backward(seq,&(hhmm0.root),&(seq.beta));
     // seq.beta.children[0]->print();
     // seq.beta.children[1]->print();
     // seq.beta.children[0]->children[0]->print();
     // seq.beta.children[0]->children[1]->print();
   }
+
+  void TestHHMM::TestAuxIn()
+  {
+    cout << "in the AuxIn algorithm" << endl;
+    hhmm->forward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->backward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    cout << "forward" << endl;
+    // hhmm->seq[0]->param.children[0]->beta.print();
+    // cout << "----------------------" << endl;
+    // hhmm->seq[0]->param.children[1]->beta.print();
+    // cout << "----------------------" << endl;
+    // hhmm->seq[0]->param.children[1]->children[0]->beta.print();
+    // cout << "----------------------" << endl;
+    // hhmm->seq[0]->param.children[1]->children[1]->beta.print();
+    // cout << "----------------------" << endl;
+    // hhmm->seq[0]->param.children[0]->children[0]->beta.print();
+    // cout << "----------------------" << endl;
+    // hhmm->seq[0]->param.children[0]->children[1]->beta.print();
+    // cout << "----------------------" << endl;
+    hhmm->auxIn(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    auto& eI = hhmm->seq[0]->param.children[0]->children[0]->etaIn;
+    for(auto& a:eI){cout << a << " ";}
+    cout << endl;
+    cout << "----------------------" << endl;
+  }
+
 }
 
 #endif
+
+
+
+
+
+
 
 
 

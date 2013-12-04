@@ -12,9 +12,6 @@ using namespace Eigen;
 template <typename T>
 using diVector = vector<vector<T>>;
 
-template <typename T>
-using triVector = vector<diVector<T>>;
-
 template<typename T>
 using up = unique_ptr<T>;
 
@@ -57,49 +54,35 @@ namespace hhmm{
       cout << endl;
     }
   }
-  
+
   class parameters{
   public:
     upperTriangle<double> alpha;//forward variables
     upperTriangle<double> beta;//backward ward variables
     vector<double> etaIn;//auxiliary variables
     vector<double> etaOut;
-    parameters(uint32_t _length)
-      :alpha(_length,0.0),
-       beta(_length,0.0),
-       etaIn(_length,0.0)
-    {}
-  };
+    parameters* parent;
+    vector<up<parameters>> children;
 
-  template<typename T> 
-  class tree{
-  protected:
-    T val;
-  public:
-    tree<T>* parent;
-    vector<up<tree<T>>> children;
+    parameters(uint32_t,uint32_t,uint32_t,parameters*);
+    ~parameters() = default;
+   };
 
-    void print() const{val.print();}
-    tree(uint32_t,uint32_t,uint32_t,tree<T>*);
-    T get() const{return val;}
-    T& set(){return val;}
-    void cpy(T const& _val){val = _val;}
-    void swp(T& _val){swap(val,_val);}
-  };
-
-  template<>
-  tree<parameters>::tree(uint32_t _depth,uint32_t _childNum,uint32_t _length,tree* _parent)
-    :val(_length),
-    parent(_parent)
+  parameters::parameters(uint32_t _depth,uint32_t _childNum,uint32_t _length,parameters* _parent)
+    :alpha(_length,0.0),
+     beta(_length,0.0),
+     etaIn(_length,0.0),
+     etaOut(_length,0.0),
+     parent(_parent)
   {
     if(_depth != 1){
       for(uint32_t t=0;t<_childNum;++t){
-        children.push_back(up<tree<parameters>>(new tree<parameters>(_depth-1,_childNum,_length,this)));
+        children.push_back(up<parameters>(new parameters(_depth-1,_childNum,_length,this)));
       }
       children.shrink_to_fit();
     }
   }
-
+  
   class Sequence{
     friend HHMM;
     friend TestHHMM;
@@ -108,7 +91,7 @@ namespace hhmm{
     vector<VectorXd> V;//Observed sequence.
     vector<uint32_t> testV;//Fix Me.
     vector<uint32_t> S;//State sequence.
-    tree<parameters> param;
+    parameters param;
   public:
 
     Sequence(vector<VectorXd> const&,uint32_t,uint32_t);
@@ -128,13 +111,3 @@ namespace hhmm{
 }
 
 #endif
-
-
-
-
-
-
-
-
-
-

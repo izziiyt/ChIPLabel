@@ -4,7 +4,6 @@
 #include <cppunit/extensions/HelperMacros.h>
 #include "HHMM.hpp"
 
-
 namespace hhmm{
 
   class TestHHMM: public CPPUNIT_NS::TestFixture
@@ -14,6 +13,7 @@ namespace hhmm{
     CPPUNIT_TEST(TestEmitProb);
     CPPUNIT_TEST(TestForward);
     CPPUNIT_TEST(TestBackward);
+    CPPUNIT_TEST(TestAuxIn);
     CPPUNIT_TEST_SUITE_END();
     HHMM* hhmm;
   public:
@@ -24,6 +24,8 @@ namespace hhmm{
     void TestEmitProb();
     void TestForward();
     void TestBackward();
+    void TestAuxIn();
+    void TestAuxOut();
   };
 }
 #endif
