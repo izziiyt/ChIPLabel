@@ -23,9 +23,9 @@ namespace hhmm{
     friend TestHHMM;
   protected:
     MatrixXd transMat;
-    map<uint64_t,uint32_t> convert;
   public:
     vector<up<baseHHMM>> children;
+    map<uint64_t,uint32_t> convert;
 
     nprodHHMM(uint32_t,uint32_t,uint32_t);
     nprodHHMM(uint32_t,uint32_t,uint32_t,uint32_t,baseHHMM*);

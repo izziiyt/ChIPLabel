@@ -14,6 +14,9 @@ namespace hhmm{
     CPPUNIT_TEST(TestForward);
     CPPUNIT_TEST(TestBackward);
     CPPUNIT_TEST(TestAuxIn);
+    CPPUNIT_TEST(TestAuxOut);
+    CPPUNIT_TEST(TestHorizon);
+    CPPUNIT_TEST(TestVertical);
     CPPUNIT_TEST_SUITE_END();
     HHMM* hhmm;
   public:
@@ -26,6 +29,8 @@ namespace hhmm{
     void TestBackward();
     void TestAuxIn();
     void TestAuxOut();
+    void TestHorizon();
+    void TestVertical();
   };
 }
 #endif

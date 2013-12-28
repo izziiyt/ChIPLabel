@@ -22,6 +22,7 @@ namespace hhmm{
     virtual ~baseHHMM() = default;
     uint32_t getLevel() const;
     double getPi() const;
+    double& setPi();
     void setPi(double x);
   };
   

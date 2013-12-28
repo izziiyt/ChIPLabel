@@ -5,6 +5,7 @@
 #include<Eigen/Dense>
 #include<memory>
 #include <iostream>
+#include <nprodHHMM.hpp>
 
 using namespace std;
 using namespace Eigen;
@@ -31,7 +32,17 @@ namespace hhmm{
     upperTriangle(uint32_t len,T x);
     T& operator()(uint32_t x,uint32_t y);
     void print() const;
+    void clear();
   };
+
+  template<typename T>
+  void upperTriangle<T>::clear(){
+    for(auto& i:val){
+      for(auto& j:i){
+        j = 0.0;
+      }
+    }
+  }
 
   template<typename T>
   upperTriangle<T>::upperTriangle(uint32_t len,T x)
@@ -40,10 +51,12 @@ namespace hhmm{
     for_each(begin(val),end(val),[](vector<T>& y){y.shrink_to_fit();});
     val.shrink_to_fit();
   }
+
   template<typename T>
   T& upperTriangle<T>::operator()(uint32_t x,uint32_t y){
     return val[x][y-x];
   }
+
   template<typename T>
   void upperTriangle<T>::print() const{
     for(uint32_t i=0;i<val.size();++i){
@@ -55,24 +68,61 @@ namespace hhmm{
     }
   }
 
+  class baseHHMM;
+  class nprodHHMM;
+
   class parameters{
+    friend TestHHMM;
+  private:
+    MatrixXd xiContent;
+
   public:
     upperTriangle<double> alpha;//forward variables
     upperTriangle<double> beta;//backward ward variables
     vector<double> etaIn;//auxiliary variables
     vector<double> etaOut;
+    vector<double> chi;
+    vector<double> gammaIn;
+    vector<double> gammaOut;
     parameters* parent;
     vector<up<parameters>> children;
+    
+    double piParent;//auxiliary variables for parameter's alteration
+    double piChild;
+    vector<double> transParentContent;
+    VectorXd transChildContent;
+    double emitParent;
+    vector<double> emitChild;
+
+    double& transChild(baseHHMM* x,baseHHMM* y,nprodHHMM* z)
+    {
+      return transChildContent(z->convert[reinterpret_cast<uint64_t>(x)], \
+                               z->convert[reinterpret_cast<uint64_t>(y)]);
+    }
+    double& transParent(baseHHMM* x,nprodHHMM* z)
+    {
+      return transParentContent[z->convert[reinterpret_cast<uint64_t>(x)]];
+    }
+    double& xi(uint32_t x,baseHHMM* y,nprodHHMM* z)
+    {
+      return xiContent(x,z->convert[reinterpret_cast<uint64_t>(y)]);
+    }
 
     parameters(uint32_t,uint32_t,uint32_t,parameters*);
     ~parameters() = default;
    };
 
+  
+
   parameters::parameters(uint32_t _depth,uint32_t _childNum,uint32_t _length,parameters* _parent)
-    :alpha(_length,0.0),
+    :xiContent(_length,_childNum+1),
+     alpha(_length,0.0),
      beta(_length,0.0),
      etaIn(_length,0.0),
      etaOut(_length,0.0),
+     chi(_length,0.0),
+     gammaIn(_length,0.0),
+     gammaOut(_length,0.0),
      parent(_parent)
   {
     if(_depth != 1){
@@ -90,7 +140,6 @@ namespace hhmm{
     uint32_t len;
     vector<VectorXd> V;//Observed sequence.
     vector<uint32_t> testV;//Fix Me.
-    vector<uint32_t> S;//State sequence.
     parameters param;
   public:
 
@@ -99,15 +148,16 @@ namespace hhmm{
     virtual ~Sequence() = default;
     uint32_t obs(uint32_t i) const{return testV[i];}
     uint32_t size() const{return len;}
+    
   };
   
   Sequence::Sequence(vector<uint32_t> const& _V,uint32_t _stateNum,uint32_t _depth)
     :len(_V.size()),
      testV(_V),
-     S(_V.size()),
      param(_depth,_stateNum,_V.size(),nullptr)
   {}
 
+  
 }
 
 #endif

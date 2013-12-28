@@ -5,11 +5,12 @@
 #include <cstdint>
 #include <memory>
 #include <Eigen/Dense>
+#include <functional>
 #include "Sequence.h"
 #include "baseHHMM.hpp"
 #include "prodHHMM.hpp"
 #include "nprodHHMM.hpp"
-
+#include <omp.h>
 
 using namespace std;
 using namespace Eigen;
@@ -39,6 +40,21 @@ namespace hhmm{
     void auxIn(Sequence&,baseHHMM*,parameters*);
     void auxOut(Sequence&);
     void auxOut(Sequence&,baseHHMM*,parameters*);
+    void horizon(Sequence&);
+    void horizon(Sequence&,baseHHMM*,parameters*);
+    void vertical(Sequence&);
+    void vertical(Sequence&,baseHHMM*,parameters*);
+    void calcGamma(Sequence&);
+    void calcGamma(Sequence&,baseHHMM*,parameters*);
+    double likelihood(Sequence&);
+    void EM();
+
+    void piChange(Sequence&);
+    void piChange(Sequence&,baseHHMM*,parameters*);
+    void transChange(Sequence&);
+    void transChange(Sequence&,baseHHMM*,parameters*);
+    void emitChange(Sequence&);
+    void emitChange(Sequence&,baseHHMM*,parameters*);
   public:
     HHMM(uint32_t,uint32_t,uint32_t);
   };

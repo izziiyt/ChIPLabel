@@ -16,6 +16,11 @@ namespace hhmm{
   {
     return pi;
   }
+  
+  double& baseHHMM::setPi()
+  {
+    return pi;
+  }
 
   void baseHHMM::setPi(double x)
 
