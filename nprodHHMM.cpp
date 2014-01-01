@@ -86,4 +86,15 @@ namespace hhmm{
     transMat = x;
   }
 
+  void nprodHHMM::clearParam()
+  {
+    pi = 0,0;
+    transMat.setZero();
+  }
+  
+  double& nprodHHMM::setTrans(baseHHMM*,up<baseHHMM>&)
+  {
+    return transMat(convert[reinterpret_cast<uint64_t>(a)],
+                    convert[reinterpret_cast<uint64_t>(b.get())]);
+  }
 }

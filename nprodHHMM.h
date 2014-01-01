@@ -36,8 +36,9 @@ namespace hhmm{
     double trans(baseHHMM*,const up<baseHHMM>&);
     double trans(const up<baseHHMM>&,baseHHMM*);
     void cpyTransMat(MatrixXd const&);
+    MatrixXd& setTrans(baseHHMM*,const up<baseHHMM>&);
+    void clearParam();
   };
-
 }
 
 #endif

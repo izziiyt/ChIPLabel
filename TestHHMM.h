@@ -31,6 +31,7 @@ namespace hhmm{
     void TestAuxOut();
     void TestHorizon();
     void TestVertical();
+    void TestCalcGamma();
   };
 }
 #endif

@@ -75,7 +75,7 @@ namespace hhmm{
     friend TestHHMM;
   private:
     MatrixXd xiContent;
-
+    MatrixXd tmpTransContent;//auxiliary variables for parameter's alteration
   public:
     upperTriangle<double> alpha;//forward variables
     upperTriangle<double> beta;//backward ward variables
@@ -87,27 +87,23 @@ namespace hhmm{
     parameters* parent;
     vector<up<parameters>> children;
     
-    double piParent;//auxiliary variables for parameter's alteration
-    double piChild;
-    vector<double> transParentContent;
-    VectorXd transChildContent;
-    double emitParent;
-    vector<double> emitChild;
+    double tmpPi;//auxiliary variables for parameter's alteration
+    double tmpEmitParent;//auxiliary variables for parameter's alteration
+    VectorXd tmpMean;//auxiliary variables for parameter's alteration
 
-    double& transChild(baseHHMM* x,baseHHMM* y,nprodHHMM* z)
-    {
-      return transChildContent(z->convert[reinterpret_cast<uint64_t>(x)], \
-                               z->convert[reinterpret_cast<uint64_t>(y)]);
-    }
-    double& transParent(baseHHMM* x,nprodHHMM* z)
-    {
-      return transParentContent[z->convert[reinterpret_cast<uint64_t>(x)]];
-    }
     double& xi(uint32_t x,baseHHMM* y,nprodHHMM* z)
     {
       return xiContent(x,z->convert[reinterpret_cast<uint64_t>(y)]);
     }
-
+    double& tmpTrans(baseHHMM* x,baseHHMM* y,baseHHMM* z)
+    {
+      return tmpTransContent(z->convert[reinterpret_cast<uint64_t>(x)], \
+                       z->convert[reinterpret_cast<uint64_t>(y)]);
+    }
+    MatrixXd& tmpTrans()
+    {
+      return tmpTransContent;
+    }
     parameters(uint32_t,uint32_t,uint32_t,parameters*);
     ~parameters() = default;
    };

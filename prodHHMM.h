@@ -34,6 +34,7 @@ namespace hhmm{
     void cpyVar(DM const&);
     void swpMean(VectorXd&);
     void swpVar(DM&);
+    void clearParam();
   };
 
 }

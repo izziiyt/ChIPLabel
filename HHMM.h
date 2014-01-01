@@ -10,7 +10,6 @@
 #include "baseHHMM.hpp"
 #include "prodHHMM.hpp"
 #include "nprodHHMM.hpp"
-#include <omp.h>
 
 using namespace std;
 using namespace Eigen;
@@ -30,6 +29,7 @@ namespace hhmm{
     uint32_t stateNum;
     uint32_t depth;
     vector<up<Sequence>> seq;
+    
     template <typename T>
     void setIterator(myit<T>&,myit<T>&,myit<baseHHMM>&,myit<baseHHMM>&,T*,baseHHMM*);
     void forward(Sequence&);
@@ -48,13 +48,15 @@ namespace hhmm{
     void calcGamma(Sequence&,baseHHMM*,parameters*);
     double likelihood(Sequence&);
     void EM();
-
-    void piChange(Sequence&);
-    void piChange(Sequence&,baseHHMM*,parameters*);
-    void transChange(Sequence&);
-    void transChange(Sequence&,baseHHMM*,parameters*);
-    void emitChange(Sequence&);
-    void emitChange(Sequence&,baseHHMM*,parameters*);
+    void paramAssemble(Sequence&,baseHHMM*,parameters*);
+    void pramStandardize();
+    void clearParam();
+    void calcTmpPi(Sequence&);
+    void calcTmpPi(Sequence&,baseHHMM*,parameters*);
+    void calcTmptrans(Sequence&);
+    void calcTmpTrans(Sequence&,baseHHMM*,parameters*);
+    void calcTmpEmit(Sequence&);
+    void calcTmpEmit(Sequence&,baseHHMM*,parameters*);
   public:
     HHMM(uint32_t,uint32_t,uint32_t);
   };

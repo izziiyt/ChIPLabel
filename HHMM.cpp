@@ -267,7 +267,6 @@ namespace hhmm{
     myit<parameters> pit,pend;
     myit<baseHHMM> rit,rend;
 
-
     // In the second top level.
     if(root->getLevel() == 1){
       //Clear the xi_values.
@@ -326,6 +325,7 @@ namespace hhmm{
     }
   }
 
+  //not debugged but really easy
   void HHMM::vertical(Sequence& seq,baseHHMM* root,parameters* param)
   {
     //In not the top level.
@@ -352,7 +352,8 @@ namespace hhmm{
       }
     }
   }
-
+  
+  //not debagged. GammaOut may be not used.
   void calcGamma(Sequence& seq,baseHHMM* root,parameters* param)
   {
     using namespace std::placeholders;
@@ -366,7 +367,7 @@ namespace hhmm{
       param->gammaIn[0] = 0.0;
       setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
       for(;pit != pend && rit != rend;++pit,++rit){
-        param->gammaIn[0] += (*pit)->xi(0,param,param->parent);
+        param->gammaOut[0] += param->xi(0,rit->get(),param->parent);
       }
       //i == 1 to T-1
       for(uint32_t i=1;i<seq.size();++i){
@@ -374,8 +375,8 @@ namespace hhmm{
         param->gammaOut[i] = 0.0;        
         setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
         for(;pit != pend && rit != rend;++pit,++rit){
-          param->gammaIn[i] += (*pit)->xi(i,param,param->parent);
-          param->gammaOut[i] += xi(i-1,param,rit->get());
+          param->gammaIn[i] += (*pit)->xi(i-1,root,param->parent);
+          param->gammaOut[i] += param->xi(i,rit->get(),param->parent);
         }
       }
     }
@@ -387,8 +388,13 @@ namespace hhmm{
     }
   }
 
-  void HHMM::transChange(Sequence& seq,baseHHMM* root,parameters* param)
+  //not debagged
+  void HHMM::calcTmpTrans(Sequence& seq,baseHHMM* root,parameters* param)
   {
+    using namespace std::placeholders;
+    //tmpTrans is param->tmpTrans(_1,_2,cast_nprod(root)
+    auto tmpTrans = bind(&parameters::tmpTrans,param,_1,_2,cast_nprod(root));
+
     myit<parameters> pit,pend,bpit,bpend;
     myit<baseHHMM> rit,rend,brit,brend;
     if(root->getLevel() < depth-1){
@@ -396,169 +402,206 @@ namespace hhmm{
       for(;pit != pend && rit != rend;++pit,++rit){
         setIterator<parameters>(bpit,bpend,brit,brend,param,rooot);
         for(;bpit != bpend && brit != brend;++bpit,++brit){
-          pit->transChild(rit->get(),brit->get(),root) = 0.0;
+          tmpTrans(rit->get(),brit->get()) = 0.0;
           for(uint32_t i=0;i<seq.size();++i){
-            pit->transChild(rit->get(),brit->get(),root) += \
-              (*pit)->xi(i,brit->get(),root);
+            tmpTrans(rit->get(),brit->get()) += (*pit)->xi(i,brit->get(),root);
           }
-        }
-        for(uint32_t i=0;i<seq.size();++i){
-          param->transParent(root,root->parent) += param->gamaOut[i];
         }
       }
       //In not the deepest level.
       setIterator<parameters>(pit,pend,rit,rend,param,root);
       for(;pit != pend && rit != rend;++pit,++rit){
-        piChange(seq,rit->get(),pit->get());
+        calcTmpTrans(seq,rit->get(),pit->get());
       }
     }
   }
 
-  void HHMM::emitChange(Sequence& seq,baseHHMM* root,parameters* param)
+  //not debagged
+  void HHMM::calcTmpMean(Sequence& seq,baseHHMM* root,parameters* param)
   {
     myit<parameters> pit,pend,bpit,bpend;
     myit<baseHHMM> rit,rend,brit,brend;
     if(root->getLevel() == depth-1){
-      for(auto& a:param->emitChild){a = 0.0;}
-      param->emitChild[seq.obs(0)] += param->chi[i];
-      param->emitParent += param->chi[i];
+      //when t == 0
+      param->tmpMean = param->chi[0] * seq.obs[0];
+      param->tmpEmitParent = param->chi[0];
+      //when t == 0 to T-1
       for(uint32_t i=1;i<seq.size();++i){
-        param->emitChild[seq.obs(i)] += param->chi[i] + param->gammaIn[i];
-        param->emitParent += param->chi[i] + param->gammaIn[i];
+        param->tmpMean += (param->chi[i] + param->gammaIn[i]) * seq.obs[0];
+        param->tmpEmitParent += param->chi[i] + param->gammaIn[i];
       }
     }
     else{
       setIterator<parameters>(pit,pend,rit,rend,param,root);
       for(;pit != pend && rit != rend;++pit,++rit){
-        emitChange(seq,rit->get(),pit->get());
+        calcTmpMean(seq,rit->get(),pit->get());
       }
     }
   }
 
-  void HHMM::transChange(Sequence& seq,baseHHMM* root,parameters* param)
-  {
-    using namespace std::placeholders;
-    //xi is param->xi(_1,_2,cast_nprod(root->parent))
-    auto xi = bind(&parameters::xi,param,_1,_2,cast_nprod(root->parent));
-    myit<parameters> pit,pend,bpit,bpend;
-    myit<baseHHMM> rit,rend,brit,brend;
-
-    if(root->getLevel() < depth-1){
-      setIterator<parameters>(pit,pend,rit,rend,param,root);
-      for(;pit != pend && rit != rend;++pit,++rit){
-        setIterator<parameters>(pit,pend,rit,rend,param,rooot);
-        for(;bpit != bpend && brit != brend;++bpit,++brit){
-          pit->transChild(rit->get(),brit->get(),root) = 0.0;
-          for(uint32_t i=0;i<seq.size();++i){
-            pit->transChild(rit->get(),brit->get(),root) += \
-              (*pit)->xi(i,brit->get(),root);
-          }
-        }
-      }
-      setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
-      for(;bpit != bpend && brit != brend;++bpit,++brit){
-        for(uint32_t i=0;i<seq.size();++i){
-          param->transParent(rit->get(),root->parent) += pit->auxOut(i);
-        }
-      }
-      //In not the deepest level.
-      if(root->getLevel() < depth-1){
-        setIterator<parameters>(pit,pend,rit,rend,param,root);
-        for(;pit != pend && rit != rend;++pit,++rit){
-          piChange(seq,rit->get(),pit->get());
-        }
-      }
-    }
-  }
-    
-  void HHMM::piChange(Sequence& seq,baseHHMM* root,parameters* param)
+  //not debagged
+  void HHMM::calcTmpPi(Sequence& seq,baseHHMM* root,parameters* param)
   {
     if(root->getLevel() > 0){
       //In the second top level.
       if(root->getLevel() == 1){
-        param->piChild = param->chi[0];
-        param->piParent = 1.0;
+        param->tmpPi = param->chi[0];
       }
       //In not the second top level.
       else{
-        param->piChild = param->piParent = 0.0;
+        param->tmpPi = 0.0;
         for(uint32_t i=0;i<seq.size();++i){
-          param->piChild += param->chi[i];
-        }
-        myit<parameters> pit,pend;
-        myit<baseHHMM> rit,rend;
-        setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
-        for(;pit != pend && rit != rend;++pit,++rit){
-          for(uint32_t i=0;i<seq.size();++i){
-            param->piParent += (*pit)->chi[i];
-          }
+          param->tmpPi += param->chi[i];
         }
       }
     }
     //In not the deepest level.
     if(root->getLevel() < depth-1){
+      myit<parameters> pit,pend;
+      myit<baseHHMM> rit,rend;
       setIterator<parameters>(pit,pend,rit,rend,param,root);
       for(;pit != pend && rit != rend;++pit,++rit){
         piChange(seq,rit->get(),pit->get());
       }
     }
   }
+ 
+  void clearParam()
+  {
+    root.clearParam();
+  }
   
+  //assemble sequences' tmpValues, excluding the variance variables
+  void paramAssemble(Sequence& seq,baseHHMM* root,parameters* param);
+  {
+    //In not the deepest level.
+    if(root->getLevel() != depth-1){
+      root->transMat += param->tmpTrans();
+      setIterator<parameters>(pit,pend,rit,rend,param,root);
+      for(;pit != pend && rit != rend;++pit,++rit){
+        assemble(seq,rit->get(),pit->get());
+      }
+    }
+    //In not the top level.
+    if(root->getLevel() > 0){
+      root->setPi() += param->tmpPi;
+      //In the deepest level.
+      if(root->getLevel() == depth-1){
+        root->mean += param->tmpMean;
+        root->emitParent += param->tmpEmitParent;
+      }
+    }
+  }
+  //Excluding variance variables
+  void paramStandardize(baseHHMM* root){
+    auto begin = begin(root->children);
+    auto end = end(root->children);
+    double tmp = 0.0;
+    //In not the deepest level.
+    if(root->getLevel() < depth-1){
+      for(auto it = begin;it != end;++it){
+        tmp += (*it)->getPi();
+      }
+      for(auto it = begin;it != end;++it){
+        (*it)->setPi() /= tmp;
+      }
+      for(uint32_t i=0;i<(root->stateNum)+1;++i){
+        tmp = 0.0;
+        for(uint32_t j=0;j<(root->stateNum)+1;++j){
+          tmp += root->trans(i,j);
+        }
+        for(uint32_t j=0;j<(root->stateNum)+1;++j){
+          root->trans(i,j) /= tmp;
+        }
+      }
+      for(auto it = begin;it != end;++it){
+        paramStandardize(it->get());
+      }
+    }
+    //In the deepest level.
+    else{
+      root->setMean() /= root->tmpEmitParent;
+    } 
+  }
+
   template<typename T>
-  void HHMM::setIterator(myit<T>& b0,myit<T>& e0,myit<baseHHMM>& b1,myit<baseHHMM>& e1,T* x,baseHHMM* y)
+    void HHMM::setIterator(myit<T>& b0,myit<T>& e0,myit<baseHHMM>& b1,myit<baseHHMM>& e1,T* x,baseHHMM* y)
   {
     b0 = begin(x->children);
     e0 = end(x->children);
     b1 = begin(dynamic_cast<nprodHHMM*>(y)->children);
     e1 = end(dynamic_cast<nprodHHMM*>(y)->children);
-  }
+   }
 
-  double HHMM::likelihood(Sequence& seq)
-  {
-    //Declear iterators.
-    myit<parameters> pit,pend;
-    myit<baseHHMM> rit,rend;
-    double result = 0.0;
-    setIterator<parameters>(pit,pend,rit,rend,&(seq.param),&root);
-    for(;pit != pend && rit != rend;++pit,++rit){
-      result += (*pit)->alpha(0,seq.size()-1) * root.trans(*rit);
-    }
-    return result;
-  }
+   double HHMM::likelihood(Sequence& seq)
+   {
+     //Declear iterators.
+     myit<parameters> pit,pend;
+     myit<baseHHMM> rit,rend;
+     double result = 0.0;
+     setIterator<parameters>(pit,pend,rit,rend,&(seq.param),&root);
+     for(;pit != pend && rit != rend;++pit,++rit){
+       result += (*pit)->alpha(0,seq.size()-1) * root.trans(*rit);
+     }
+     return result;
+   }
 
-  void HHMM::forward(Sequence& s){
-    forward(s,&root,&(s.param));
-  }
-  void HHMM::backward(Sequence& s){
-    backward(s,&root,&(s.param));
-  }
-  void HHMM::auxIn(Sequence& s){
-    auxIn(s,&root,&(s.param));
-  }
-  void HHMM::auxOut(Sequence& s){
-    auxOut(s,&root,&(s.param));
-  }
-  void HHMM::horizon(Sequence& s){
-    horizon(s,&root,&(s.param));
-  }
-  void HHMM::vertical(Sequence& s){
-    vertical(s,&root,&(s.param));
-  }
+   void HHMM::forward(Sequence& s){
+     forward(s,&root,&(s.param));
+   }
+   void HHMM::backward(Sequence& s){
+     backward(s,&root,&(s.param));
+   }
+   void HHMM::auxIn(Sequence& s){
+     auxIn(s,&root,&(s.param));
+   }
+   void HHMM::auxOut(Sequence& s){
+     auxOut(s,&root,&(s.param));
+   }
+   void HHMM::horizon(Sequence& s){
+     horizon(s,&root,&(s.param));
+   }
+   void HHMM::vertical(Sequence& s){
+     vertical(s,&root,&(s.param));
+   }
+   void HHMM::calcGamma(Sequence& s){
+     vertical(s,&root,&(s.param));
+   }
+   void HHMM::calcTmpPi(Sequence& s){
+     vertical(s,&root,&(s.param));
+   }
+   void HHMM::calcTmpTrans(Sequence& s){
+     vertical(s,&root,&(s.param));
+   }
+   void HHMM::calcTmpEmit(Sequence& s){
+     vertical(s,&root,&(s.param));
+   }
+   void HHMM::EM()
+   {
+     for(uint32_t i=0;i<100;++i){
 
-  void HHMM::EM()
-  {
-    for(uint32_t i=0;i<100;++i){
-      for(auto& s:seq){
-        forward(*s);
-        backward(*s);
-        auxIn(*s);
-        auxOut(*s);
-        horizon(*s);
-        vertical(*s);
-        piChange(*s);
-      }
+       //E-step by multi-threading
+       for(auto& s:seq){
+         forward(*s);
+         backward(*s);
+         auxIn(*s);
+         auxOut(*s);
+         horizon(*s);
+         vertical(*s);
+         calcGamma(*s);
+         calcTmpPi(*s);
+         calcTmpTrans(*s);
+         calcTmpEmit(*s);
+       }
 
-    }
-  }
+       //M-step by single-threading
+       clearParam();
+       for(auto& s:seq){paramAssemble(*s);}
+       paramStandardize();
 
-}
+       //E-step for the variance variables by multi-threading
+       //M-step for the variance variables by single-threading
+     }
+   }
+
+ }

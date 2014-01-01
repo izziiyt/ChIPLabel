@@ -55,4 +55,12 @@ namespace hhmm{
     return testemit[i];
   }
 
+  void prodHHMM::clearParam()
+  {
+    pi = 0.0;
+    standardizePi = 0.0;
+    mean.setZero();
+    for(uint32_t i=0;i<testemit.size();++i){testemit[i] = 0.0;}
+    var.setZero();
+  }
 }
