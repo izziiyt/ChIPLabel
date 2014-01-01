@@ -92,7 +92,7 @@ namespace hhmm{
     transMat.setZero();
   }
   
-  double& nprodHHMM::setTrans(baseHHMM*,up<baseHHMM>&)
+  double& nprodHHMM::setTrans(baseHHMM* a,const up<baseHHMM>& b)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a)],
                     convert[reinterpret_cast<uint64_t>(b.get())]);

@@ -23,12 +23,14 @@ namespace hhmm{
     vector<double> testemit;
     DM var;
   public:
+    double emitParent;
     prodHHMM(uint32_t,uint32_t,baseHHMM*);
     ~prodHHMM() = default;
     void setEmit(vector<double> const& x);
     double emit(VectorXd const&) const;
     double emit(uint32_t i) const;
     VectorXd getMean() const;
+    VectorXd& setMean();
     MatrixXd getVar() const;
     void cpyMean(VectorXd const&);
     void cpyVar(DM const&);

@@ -26,7 +26,6 @@ namespace hhmm{
     uint32_t getLevel() const;
     double getPi() const;
     double& setPi();
-    double& setStandardizePi();
     void setPi(double x);
     virtual void clearParam();
   };

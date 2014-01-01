@@ -95,10 +95,10 @@ namespace hhmm{
     {
       return xiContent(x,z->convert[reinterpret_cast<uint64_t>(y)]);
     }
-    double& tmpTrans(baseHHMM* x,baseHHMM* y,baseHHMM* z)
+    double& tmpTrans(baseHHMM* x,baseHHMM* y,nprodHHMM* z)
     {
       return tmpTransContent(z->convert[reinterpret_cast<uint64_t>(x)], \
-                       z->convert[reinterpret_cast<uint64_t>(y)]);
+                             z->convert[reinterpret_cast<uint64_t>(y)]);
     }
     MatrixXd& tmpTrans()
     {

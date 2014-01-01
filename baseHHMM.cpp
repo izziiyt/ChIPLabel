@@ -31,6 +31,5 @@ namespace hhmm{
   void baseHHMM::clearParam()
   {
     pi = 0.0;
-    standardizePi = 0.0;
   }
 }

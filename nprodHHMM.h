@@ -30,13 +30,14 @@ namespace hhmm{
     nprodHHMM(uint32_t,uint32_t,uint32_t);
     nprodHHMM(uint32_t,uint32_t,uint32_t,uint32_t,baseHHMM*);
     ~nprodHHMM() = default;
+    MatrixXd& trans();
     double trans(up<baseHHMM> const&);
     double trans(baseHHMM*);
     double trans(const up<baseHHMM>&,const up<baseHHMM>&);
     double trans(baseHHMM*,const up<baseHHMM>&);
     double trans(const up<baseHHMM>&,baseHHMM*);
     void cpyTransMat(MatrixXd const&);
-    MatrixXd& setTrans(baseHHMM*,const up<baseHHMM>&);
+    double& setTrans(baseHHMM*,const up<baseHHMM>&);
     void clearParam();
   };
 }

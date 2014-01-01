@@ -19,6 +19,9 @@ namespace hhmm{
   template<typename T>
   using myit = typename vector<up<T>>::iterator;
 
+  auto cast_nprod = [](baseHHMM* x){return dynamic_cast<nprodHHMM*>(x);};
+  auto cast_prod = [](baseHHMM* x){return dynamic_cast<prodHHMM*>(x);};
+
   class TestHHMM;
 
   class HHMM{
@@ -49,14 +52,18 @@ namespace hhmm{
     double likelihood(Sequence&);
     void EM();
     void paramAssemble(Sequence&,baseHHMM*,parameters*);
-    void pramStandardize();
+    void paramAssemble(Sequence&);
+    void paramStandardize(baseHHMM*);
+    void paramStandardize();
     void clearParam();
     void calcTmpPi(Sequence&);
     void calcTmpPi(Sequence&,baseHHMM*,parameters*);
-    void calcTmptrans(Sequence&);
+    void calcTmpTrans(Sequence&);
     void calcTmpTrans(Sequence&,baseHHMM*,parameters*);
     void calcTmpEmit(Sequence&);
     void calcTmpEmit(Sequence&,baseHHMM*,parameters*);
+    void calcTmpMean(Sequence&);
+    void calcTmpMean(Sequence&,baseHHMM*,parameters*);
   public:
     HHMM(uint32_t,uint32_t,uint32_t);
   };
