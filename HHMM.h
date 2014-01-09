@@ -6,7 +6,9 @@
 #include <memory>
 #include <Eigen/Dense>
 #include <functional>
-#include "Sequence.h"
+
+#include "Sequence.hpp"
+#include "parameters.hpp"
 #include "baseHHMM.hpp"
 #include "prodHHMM.hpp"
 #include "nprodHHMM.hpp"
@@ -53,17 +55,24 @@ namespace hhmm{
     void EM();
     void paramAssemble(Sequence&,baseHHMM*,parameters*);
     void paramAssemble(Sequence&);
+    void varianceAssemble(Sequence&,baseHHMM*,parameters*);
+    void varianceAssemble(Sequence&);
     void paramStandardize(baseHHMM*);
     void paramStandardize();
+    void varianceStandardize(baseHHMM*);
+    void varianceStandardize();
     void clearParam();
     void calcTmpPi(Sequence&);
     void calcTmpPi(Sequence&,baseHHMM*,parameters*);
     void calcTmpTrans(Sequence&);
     void calcTmpTrans(Sequence&,baseHHMM*,parameters*);
-    void calcTmpEmit(Sequence&);
-    void calcTmpEmit(Sequence&,baseHHMM*,parameters*);
+    // void calcTmpEmit(Sequence&);
+    // void calcTmpEmit(Sequence&,baseHHMM*,parameters*);
     void calcTmpMean(Sequence&);
     void calcTmpMean(Sequence&,baseHHMM*,parameters*);
+    void calcTmpVariance(Sequence&);
+    void calcTmpVariance(Sequence&,baseHHMM*,parameters*);
+
   public:
     HHMM(uint32_t,uint32_t,uint32_t);
   };

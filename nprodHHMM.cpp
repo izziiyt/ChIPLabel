@@ -53,6 +53,11 @@ namespace hhmm{
     convert.insert(pair<uint64_t,uint32_t>(0,i));
   }
   
+  MatrixXd& nprodHHMM::trans()
+  {
+    return transMat;
+  }
+  
   double nprodHHMM::trans(baseHHMM* a)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a)],convert[0]);
@@ -90,6 +95,7 @@ namespace hhmm{
   {
     pi = 0,0;
     transMat.setZero();
+    for(auto& c:children){c->clearParam();}
   }
   
   double& nprodHHMM::setTrans(baseHHMM* a,const up<baseHHMM>& b)

@@ -9,6 +9,7 @@
 #include <dirent.h>
 #include <fstream>
 #include <memory>
+#include "readSample.cpp"
 
 namespace hhmm{
 
@@ -28,30 +29,47 @@ namespace hhmm{
 
     auto castn = [](baseHHMM* x){return dynamic_cast<nprodHHMM*>(x);};
     auto castp = [](baseHHMM* x){return dynamic_cast<prodHHMM*>(x);};
-    vector<uint32_t> obs = {0,1,1};
-
-    vector<double> emit0 = {0.2,0.8};
-    vector<double> emit1 = {0.6,0.4};
+    vector<VectorXd> obs0 = readSample("sample.txt");
+    //    vector<uint32_t> obs1 = readSample("../sample1.txt");
+    //    vector<double> emit0 = {0.2,0.8};
+    //    vector<double> emit1 = {0.6,0.4};
+    //for(auto& a:obs0){cout << a << endl;}
+    VectorXd mean0(2);
+    mean0 << 3.0,2.0;
+    VectorXd mean1(2);
+    mean0 << 4.0,1.0;
+    MatrixXd variance0(2,2);
+    variance0 << 1.5,0.0,
+      0.0,2.5;
+    MatrixXd variance1(2,2);
+    variance1 << 2.3,0.0,
+      0.0,1.2;
     MatrixXd trans(2,3);
     trans << 0.5,0.4,0.1,
       0.4,0.4,0.2;
     MatrixXd trans2(2,3);
-    trans2 << 0.6,0.2,0.2,
-      0.2,0.7,0.1;
-    (hhmm->seq).push_back(up<Sequence>(new Sequence(obs,2,3)));
+    trans2 << 0.6,0.3,0.1,
+      0.2,0.6,0.2;
+    (hhmm->seq).push_back(up<Sequence>(new Sequence(obs0,2,3,2)));
+    //(hhmm->seq).push_back(up<Sequence>(new Sequence(obs1,2,3,2)));
     (hhmm->root).cpyTransMat(trans2);
     castn(hhmm->root.children[0].get())->cpyTransMat(trans);
     castn(hhmm->root.children[1].get())->cpyTransMat(trans);
-    castp(castn(hhmm->root.children[0].get())->children[0].get())->setEmit(emit0);
-    castp(castn(hhmm->root.children[0].get())->children[1].get())->setEmit(emit1);
-    castp(castn(hhmm->root.children[1].get())->children[0].get())->setEmit(emit0);
-    castp(castn(hhmm->root.children[1].get())->children[1].get())->setEmit(emit1);
+    castp(castn(hhmm->root.children[0].get())->children[0].get())->setMean() = mean0;
+    castp(castn(hhmm->root.children[0].get())->children[0].get())->setVariance().diagonal() = variance0.diagonal();
+    castp(castn(hhmm->root.children[0].get())->children[1].get())->setMean() = mean1;
+    castp(castn(hhmm->root.children[0].get())->children[1].get())->setVariance().diagonal() = variance1.diagonal();
+    castp(castn(hhmm->root.children[1].get())->children[0].get())->setMean() = mean0;
+    castp(castn(hhmm->root.children[1].get())->children[0].get())->setVariance().diagonal() = variance0.diagonal();
+    castp(castn(hhmm->root.children[1].get())->children[1].get())->setMean() = mean1;
+    castp(castn(hhmm->root.children[1].get())->children[1].get())->setVariance().diagonal() = variance1.diagonal();
+
     castn(hhmm->root.children[0].get())->children[0]->setPi(0.3);
     castn(hhmm->root.children[0].get())->children[1]->setPi(0.7);
     castn(hhmm->root.children[1].get())->children[0]->setPi(0.3);
     castn(hhmm->root.children[1].get())->children[1]->setPi(0.7);
     hhmm->root.children[0]->setPi(0.4);
-    hhmm->root.children[1]->setPi(0.6); 
+    hhmm->root.children[1]->setPi(0.6);
   }
 
   void TestHHMM::tearDown()
@@ -89,7 +107,35 @@ namespace hhmm{
   void TestHHMM::TestBackward()
   {
     cout << "in the Backward algorithm" << endl;
+    hhmm->forward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
     hhmm->backward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    //debugAlphaAndBeta(*hhmm,*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+  }
+
+  void TestHHMM::debugAlphaAndBeta(HHMM& hhmm,Sequence& seq,baseHHMM* root,parameters* param)
+  {
+    //If it is the deepest level,it returns;
+    if(root->getLevel() == hhmm.depth-1){return;}
+    //Declear iterators.
+    myit<parameters> pit,pend;
+    myit<baseHHMM> rit,rend;
+    hhmm.setIterator<parameters>(pit,pend,rit,rend,param,root);
+    for(;pit != pend && rit != rend;++pit,++rit){
+      debugAlphaAndBeta(hhmm,seq,rit->get(),pit->get());
+    }
+    cout << "level is " << root->getLevel()+1 << endl;
+    for(uint32_t i=0;i<seq.size();++i){
+      for(uint32_t j=i;j<seq.size();++j){
+        double BETA = 0.0,ALPHA = 0.0;
+        hhmm.setIterator<parameters>(pit,pend,rit,rend,param,root);
+        for(;pit != pend && rit != rend;++pit,++rit){
+          BETA += (*pit)->beta(i,j) * (*rit)->getPi();
+          ALPHA += (*pit)->alpha(i,j) * cast_nprod(root)->trans(rit->get());
+        }
+        cout << "index: " << i << " " << j << endl;
+        cout << BETA << " " << ALPHA << endl;
+      }
+    }
   }
 
   void TestHHMM::TestAuxIn()
@@ -117,6 +163,7 @@ namespace hhmm{
     cout << "in the AuxOut algorithm" << endl;
     hhmm->forward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
     hhmm->backward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->auxIn(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
     hhmm->auxOut(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
     // auto& eO = hhmm->seq[0]->param.children[0]->etaOut;
     // for(auto& a:eO){cout << a << " ";}
@@ -140,12 +187,12 @@ namespace hhmm{
     hhmm->auxOut(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
     hhmm->auxIn(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
     hhmm->horizon(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
-  //   for(uint32_t i=0;i<hhmm->seq[0]->size();++i){
-  //     for(uint32_t j=0;j<=hhmm->stateNum;++j){
-  //       cout << hhmm->seq[0]->param.children[0]->children[0]->xiContent(i,j) << " ";
-  //     }
-  //     cout << endl;
-  //   }
+    // for(uint32_t i=0;i<hhmm->seq[0]->size();++i){
+    //   for(uint32_t j=0;j<=hhmm->stateNum;++j){
+    //     cout << hhmm->seq[0]->param.children[0]->children[0]->xiContent(i,j) << " ";
+    //   }
+    //   cout << endl;
+    // }
   }
 
   void TestHHMM::TestVertical()
@@ -157,11 +204,66 @@ namespace hhmm{
     hhmm->auxIn(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
     hhmm->vertical(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
     for(uint32_t i=0;i<hhmm->seq[0]->size();++i){
-      cout << hhmm->seq[0]->param.children[0]->chi[i] << " ";
+       cout << hhmm->seq[0]->param.children[0]->chi[i] << " ";
+     }
+    cout << endl;
+    for(uint32_t i=0;i<hhmm->seq[0]->size();++i){
+       cout << hhmm->seq[0]->param.children[1]->chi[i] << " ";
+     }
+     cout << endl;
+  }
+
+  void TestHHMM::TestCalcGamma()
+  {
+    cout << "in the calcGamma algorithm" << endl;
+    hhmm->forward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->backward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->auxOut(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->auxIn(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->vertical(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    for(uint32_t i=0;i<hhmm->seq[0]->size();++i){
+      cout << hhmm->seq[0]->param.children[0]->gammaIn[i] << " ";
     }
     cout << endl;
   }
+
+  void TestHHMM::TestCalcTmpPi()
+  {
+    cout << "in the calcTmpPi algorithm" << endl;
+    hhmm->forward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->backward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->auxOut(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->auxIn(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->vertical(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));    
+    hhmm->calcTmpPi(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));    
+  }
+  void TestHHMM::TestCalcTmpTrans()
+  {
+    cout << "in the calcTmpTrans algorithm" << endl;
+    hhmm->forward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->backward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->auxOut(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->auxIn(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    hhmm->vertical(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));    
+    hhmm->calcTmpTrans(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));    
+  }
+  // void TestHHMM::TestCalcTmpEmit()
+  // {
+  //   cout << "in the calcTmpEmit algorithm" << endl;
+  //   hhmm->forward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+  //   hhmm->backward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+  //   hhmm->auxOut(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+  //   hhmm->auxIn(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+  //   hhmm->vertical(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));    
+  //   hhmm->calcTmpEmit(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));    
+  // }
   
+  void TestHHMM::TestEM()
+  {
+    cout << "in the EM algorithm" << endl;
+    hhmm->EM();
+  }
+
 }
 
 #endif
