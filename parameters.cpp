@@ -66,16 +66,16 @@ namespace hhmm{
     children.shrink_to_fit();
   }
 
-  double& parameters::xi(uint32_t x,baseHHMM* y,nprodHHMM* z)
+  long double& parameters::xi(uint32_t x,baseHHMM* y,nprodHHMM* z)
   {
     return xiContent(x,z->convert[reinterpret_cast<uint64_t>(y)]);
   }
-  double& parameters::tmpTrans(baseHHMM* x,baseHHMM* y,nprodHHMM* z)
+  long double& parameters::tmpTrans(baseHHMM* x,baseHHMM* y,nprodHHMM* z)
   {
     return tmpTransContent(z->convert[reinterpret_cast<uint64_t>(x)],   \
                            z->convert[reinterpret_cast<uint64_t>(y)]);
   }
-  MatrixXd& parameters::tmpTrans()
+  MatrixXld& parameters::tmpTrans()
   {
     return tmpTransContent;
   }

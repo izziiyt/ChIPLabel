@@ -58,7 +58,7 @@ namespace hhmm{
 
 
         }
-        double tmp0 = 0.0,tmp1 = 0.0,tmp2 = 0.0;
+        long double tmp0 = 0.0,tmp1 = 0.0,tmp2 = 0.0;
         for(uint32_t j=i+1;j<seq.size();++j){
           setIterator<parameters>(pit,pend,rit,rend,param,root);
           for(;pit != pend && rit != rend;++pit,++rit){
@@ -131,7 +131,7 @@ namespace hhmm{
           }
           (*pit)->beta(i,i) *= cast_nprod(root)->trans(*rit);
         }
-        double tmp0,tmp1,tmp2;
+        long double tmp0,tmp1,tmp2;
         for(uint32_t j=i+1;j<seq.size();++j){
           setIterator<parameters>(pit,pend,rit,rend,param,root);
           for(;pit != pend && rit != rend;++pit,++rit){
@@ -184,7 +184,7 @@ namespace hhmm{
       param->etaIn[0] = param->parent->etaIn[0] * root->getPi();
       for(int64_t i=1;i<seq.size();++i){
         for(uint32_t j=0;j<i;++j){
-          double tmp;
+          long double tmp;
           setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
           for(tmp = 0.0;pit != pend && rit != rend;++pit,++rit){
             tmp += (*pit)->alpha(j,i-1) * cast_nprod(root->parent)->trans(*rit,root);
@@ -227,7 +227,7 @@ namespace hhmm{
       for(uint32_t i=0;i<seq.size();++i){param->etaOut[i] = 0.0;}
       for(int64_t i=0;i<seq.size()-1;++i){
         for(uint32_t j=i+1;j<seq.size();++j){
-          double tmp;
+          long double tmp;
           setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
           for(tmp = 0.0;pit != pend && rit != rend;++pit,++rit){
             tmp += (*pit)->beta(i+1,j) * cast_nprod(root->parent)->trans(root,*rit);
@@ -288,14 +288,14 @@ namespace hhmm{
         endXi(i) = 0.0;
       }
       for(uint32_t i=0;i<seq.size();++i){
-        double tmp0 = 0.0;
+        long double tmp0 = 0.0;
         for(uint32_t j=0;j<=i;++j){
           tmp0 += param->parent->etaIn[j] * param->alpha(j,i);
         }
         setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
         for(;pit != pend && rit != rend;++pit,++rit){
           if(i < seq.size()-1){
-            double tmp1 = 0.0;
+            long double tmp1 = 0.0;
             for(uint32_t k=i+1;k<seq.size();++k){
               tmp1 += param->parent->etaOut[k] * (*pit)->beta(i+1,k);
             }
@@ -318,80 +318,7 @@ namespace hhmm{
       }
     }
   }
-
-  // void HHMM::horizon(Sequence& seq,baseHHMM* root,parameters* param)
-  // {
-  //   using namespace std::placeholders;
-  //   //xi is param->xi(_1,_2,cast_nprod(root->parent))
-  //   auto xi = bind(&parameters::xi,param,_1,_2,cast_nprod(root->parent));
-  //   auto endXi = bind(&parameters::xi,param,_1,nullptr,cast_nprod(root->parent));
-
-  //   //Declear iterators.
-  //   myit<parameters> pit,pend;
-  //   myit<baseHHMM> rit,rend;
-
-  //   // In the second top level.
-  //   if(root->getLevel() == 1){
-  //     //Clear the xi_values.
-  //     for(uint32_t i=0;i<seq.size();++i){
-  //       setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
-  //       for(;pit != pend && rit != rend;++pit,++rit){xi(i,rit->get()) = 0.0;}
-  //       endXi(i) = 0.0;
-  //     }
-  //     for(uint32_t i=0;i<seq.size()-1;++i){
-  //       setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
-  //       for(;pit != pend && rit != rend;++pit,++rit){
-  //         xi(i,rit->get()) = param->alpha(0,i) * (*pit)->beta(i+1,seq.size()-1) * \
-  //           cast_nprod(root->parent)->trans(root,*rit) / likelihood(seq);
-  //       }
-  //     }
-  //     // i == seq.size()-1
-  //     setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
-  //     for(;pit != pend && rit != rend;++pit,++rit){
-  //       xi(seq.size()-1,(*rit).get()) = param->alpha(0,seq.size()-1) *  \
-  //         cast_nprod(root->parent)->trans(root,*rit) / likelihood(seq);
-  //     }
-  //     endXi(seq.size()-1) = param->alpha(0,seq.size()-1) *        \
-  //       cast_nprod(root->parent)->trans(root) / likelihood(seq);
-  //   }
-  //   //In the level that is not the top nor the second top.
-  //   else if(root->getLevel() > 1){
-  //     //Clear the xi_values.
-  //     for(uint32_t i=0;i<seq.size();++i){
-  //       setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
-  //       for(;pit != pend && rit != rend;++pit,++rit){xi(i,(*rit).get()) = 0.0;}
-  //       endXi(i) = 0.0;
-  //     }
-  //     for(uint32_t i=0;i<seq.size()-1;++i){
-  //       double tmp0 = 0.0,tmp1 = 0.0;
-  //       setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
-  //       for(;pit != pend && rit != rend;++pit,++rit){
-  //         for(uint32_t j=0;j<=i;++j){
-  //           tmp0 += param->parent->etaIn[j] * param->alpha(j,i);
-  //         }
-  //         for(uint32_t k=i+1;k<seq.size();++k){
-  //           tmp1 += param->parent->etaOut[k] * (*pit)->beta(i+1,k);
-  //         }
-  //         xi(i,(*rit).get()) = tmp0 * tmp1 *                            \
-  //           cast_nprod(root->parent)->trans(root,*rit)  / likelihood(seq);
-  //         tmp0 = 0.0;tmp1 = 0.0;
-  //       }
-  //       for(uint32_t j=0;j<=i;++j){
-  //         tmp0 += param->parent->etaIn[j] * param->alpha(j,i);
-  //       }
-  //       endXi(i) = tmp0 * cast_nprod(root->parent)->trans(root) *  \
-  //         param->parent->etaOut[i] / likelihood(seq);
-  //     }
-  //   }
-  //   if(root->getLevel() < depth-1){
-  //     //At last,horizon(children).
-  //     setIterator<parameters>(pit,pend,rit,rend,param,root);
-  //     for(;pit != pend && rit != rend;++pit,++rit){
-  //       horizon(seq,rit->get(),pit->get());
-  //     }
-  //   }
-  // }
-
+  
   void HHMM::vertical(Sequence& seq,baseHHMM* root,parameters* param)
   {
     //In the second top level.
@@ -537,14 +464,12 @@ namespace hhmm{
     myit<baseHHMM> rit,rend,brit,brend;
     if(root->getLevel() == depth-1){
       //when t == 0
-      param->tmpVariance.diagonal() = ((seq.obs(0) - cast_prod(root)->getMean()) * \
-                            (seq.obs(0) - cast_prod(root)->getMean()).transpose()).diagonal() * \
-        param->chi[0];
-
+      VectorXld tmp = seq.obs(0) - cast_prod(root)->getMean();
+      param->tmpVariance.diagonal() = tmp.asDiagonal() * tmp * param->chi[0];
       //when t == 0 to T-1
       for(uint32_t i=1;i<seq.size();++i){
-        param->tmpVariance.diagonal() += ((seq.obs(0) - cast_prod(root)->getMean()) * \
-                                          (seq.obs(0) - cast_prod(root)->getMean()).transpose()).diagonal() * \
+        tmp = seq.obs(i) - cast_prod(root)->getMean();
+        param->tmpVariance.diagonal() += tmp.asDiagonal() * tmp * \
           (param->chi[i] + param->gammaIn[i]);
       }
     }
@@ -639,7 +564,7 @@ namespace hhmm{
   //Excluding variance variables
   void HHMM::paramStandardize(baseHHMM* root)
   {
-    double tmp = 0.0;
+    long double tmp = 0.0;
     //In not the deepest level.
     if(root->getLevel() < depth-1){
       myit<baseHHMM> b = begin(cast_nprod(root)->children);
@@ -698,23 +623,16 @@ namespace hhmm{
     e1 = end(cast_nprod(y)->children);
   }
 
-  double HHMM::likelihood(Sequence& seq)
+  long double HHMM::likelihood(Sequence& seq)
   {
     //Declear iterators.
     myit<parameters> pit,pend;
     myit<baseHHMM> rit,rend;
-    double result = 0.0;
+    long double result = 0.0;
     setIterator<parameters>(pit,pend,rit,rend,&(seq.param),&root);
     for(;pit != pend && rit != rend;++pit,++rit){
       result += (*pit)->alpha(0,seq.size()-1) * cast_nprod(&root)->trans(*rit);
     }
-    // setIterator<parameters>(pit,pend,rit,rend,&(seq.param),&root);
-    // double fake = 0.0;
-    // for(;pit!= pend && rit != rend;++pit,++rit){
-    //   fake += (*pit)->beta(0,seq.size()-1) * (*rit)->getPi();
-    // }
-    // cout << "result" << result << endl;
-    // cout << "fake" << fake << endl;
     return result;
   }
 
@@ -768,7 +686,7 @@ namespace hhmm{
   }
   void HHMM::EM()
   {
-    for(uint32_t i=0;i<1000;++i){
+    for(uint32_t i=0;i<1;++i){
 
       //E-step by multi-threading
       for(auto& s:seq){
@@ -799,25 +717,25 @@ namespace hhmm{
 
       //M-step for the variance variables by single-threading
       varianceStandardize();
-      cout << cast_prod(cast_nprod(root.children[0].get())->children[0].get())->getMean() << endl;
-      cout << cast_prod(cast_nprod(root.children[0].get())->children[1].get())->getMean() << endl;
-      cout << cast_prod(cast_nprod(root.children[1].get())->children[0].get())->getMean() << endl;
-      cout << cast_prod(cast_nprod(root.children[1].get())->children[1].get())->getMean() << endl;
-      cout << "------------------" << endl;
-      // cout << root.trans() << endl;
-      // cout << cast_nprod(root.children[0].get())->trans() << endl;
-      // cout << cast_nprod(root.children[1].get())->trans() << endl;
-      // cout << root.children[0]->getPi() << endl;
-      // cout << root.children[1]->getPi() << endl;
-      // cout << cast_nprod(root.children[0].get())->children[0]->getPi() << endl;
-      // cout << cast_nprod(root.children[0].get())->children[1]->getPi() << endl;
-      // cout << cast_nprod(root.children[1].get())->children[0]->getPi() << endl;
-      // cout << cast_nprod(root.children[1].get())->children[1]->getPi() << endl;
+      // cout << cast_prod(cast_nprod(root.children[0].get())->children[0].get())->getMean() << endl;
+      // cout << cast_prod(cast_nprod(root.children[0].get())->children[1].get())->getMean() << endl;
+      // cout << cast_prod(cast_nprod(root.children[1].get())->children[0].get())->getMean() << endl;
+      // cout << cast_prod(cast_nprod(root.children[1].get())->children[1].get())->getMean() << endl;
+      // cout << "------------------" << endl;
+      // // cout << root.trans() << endl;
+      // // cout << cast_nprod(root.children[0].get())->trans() << endl;
+      // // cout << cast_nprod(root.children[1].get())->trans() << endl;
+      // // cout << root.children[0]->getPi() << endl;
+      // // cout << root.children[1]->getPi() << endl;
+      // // cout << cast_nprod(root.children[0].get())->children[0]->getPi() << endl;
+      // // cout << cast_nprod(root.children[0].get())->children[1]->getPi() << endl;
+      // // cout << cast_nprod(root.children[1].get())->children[0]->getPi() << endl;
+      // // cout << cast_nprod(root.children[1].get())->children[1]->getPi() << endl;
 
-      cout << cast_prod(cast_nprod(root.children[0].get())->children[0].get())->getVariance().diagonal() << endl;
-      cout << cast_prod(cast_nprod(root.children[0].get())->children[1].get())->getVariance().diagonal() << endl;
-      cout << cast_prod(cast_nprod(root.children[1].get())->children[0].get())->getVariance().diagonal() << endl;
-      cout << cast_prod(cast_nprod(root.children[1].get())->children[1].get())->getVariance().diagonal() << endl;
+      // cout << cast_prod(cast_nprod(root.children[0].get())->children[0].get())->getVariance().diagonal() << endl;
+      // cout << cast_prod(cast_nprod(root.children[0].get())->children[1].get())->getVariance().diagonal() << endl;
+      // cout << cast_prod(cast_nprod(root.children[1].get())->children[0].get())->getVariance().diagonal() << endl;
+      // cout << cast_prod(cast_nprod(root.children[1].get())->children[1].get())->getVariance().diagonal() << endl;
 
     }
   }

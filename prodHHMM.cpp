@@ -11,22 +11,31 @@ namespace hhmm{
      var(_dim)
   {}
 
-  double prodHHMM::emit(VectorXd const& O) const
+  long double prodHHMM::emit(VectorXld const& O) const
   {
-    double mom = sqrt(pow(2 * M_PI,mean.size()) * var.diagonal().prod());
-    double son = exp(-0.5 * (O - mean).transpose() * var.inverse()*(O - mean));
-    //if(std::isnan(son/mom)){std::cout << "yes" << std::endl;}
-    //if(std::isinf(son/mom)){std::cout << "yes" << std::endl;}
+    long double mom = sqrt(pow(2 * M_PI,mean.size()) * var.diagonal().prod());
+    long double son = exp(-0.5 * (O - mean).transpose() * var.inverse()*(O - mean));
+    if(std::isnan(son/mom)){std::cout << "yes" << std::endl;
+    cout << O << endl;
+    cout << var.diagonal() << endl;
+    cout << mean << endl;
+    cout << mom << " " << son << endl;
+    cout << "------------ " << endl;
+    cout << (O - mean).transpose() << endl;
+    cout << var.inverse().diagonal() << endl;
+    cout << (O - mean) << endl; 
+    exit(1);
+    }
     return son/mom;
   }
 
   
-  VectorXd const& prodHHMM::getMean() const
+  VectorXld const& prodHHMM::getMean() const
   {
     return mean;
   }
   
-  VectorXd& prodHHMM::setMean()
+  VectorXld& prodHHMM::setMean()
   {
     return mean;
   }
@@ -41,7 +50,7 @@ namespace hhmm{
     return var;
   }
 
-  void prodHHMM::cpyMean(VectorXd const& args)
+  void prodHHMM::cpyMean(VectorXld const& args)
   {
     mean = args;
   }
@@ -51,7 +60,7 @@ namespace hhmm{
     var = args;
   }
 
-  void prodHHMM::swpMean(VectorXd& args)
+  void prodHHMM::swpMean(VectorXld& args)
   {
     mean.swap(args);
   }
@@ -61,12 +70,12 @@ namespace hhmm{
     var.diagonal().swap(args.diagonal());
   }
 
-  // void prodHHMM::setEmit(vector<double> const& x)
+  // void prodHHMM::setEmit(vector<long double> const& x)
   // {
   //   testemit = x;
   // }
   
-  // double prodHHMM::emit(uint32_t i) const
+  // long double prodHHMM::emit(uint32_t i) const
   // {
   //   return testemit[i];
   // }

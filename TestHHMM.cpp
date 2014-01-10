@@ -18,7 +18,7 @@ namespace hhmm{
   const uint32_t _STATENUM = 3;
   const uint32_t _DIM = 2;
 
-  bool isNear(double x,double y)
+  bool isNear(long double x,long double y)
   {
     return fabs(x-y) < x * DBL_EPSILON;
   }
@@ -29,25 +29,25 @@ namespace hhmm{
 
     auto castn = [](baseHHMM* x){return dynamic_cast<nprodHHMM*>(x);};
     auto castp = [](baseHHMM* x){return dynamic_cast<prodHHMM*>(x);};
-    vector<VectorXd> obs0 = readSample("sample.txt");
+    vector<VectorXld> obs0 = readSample("sample.txt");
     //    vector<uint32_t> obs1 = readSample("../sample1.txt");
-    //    vector<double> emit0 = {0.2,0.8};
-    //    vector<double> emit1 = {0.6,0.4};
+    //    vector<long double> emit0 = {0.2,0.8};
+    //    vector<long double> emit1 = {0.6,0.4};
     //for(auto& a:obs0){cout << a << endl;}
-    VectorXd mean0(2);
+    VectorXld mean0(2);
     mean0 << 3.0,2.0;
-    VectorXd mean1(2);
-    mean0 << 4.0,1.0;
-    MatrixXd variance0(2,2);
+    VectorXld mean1(2);
+    mean1 << 4.0,1.0;
+    MatrixXld variance0(2,2);
     variance0 << 1.5,0.0,
       0.0,2.5;
-    MatrixXd variance1(2,2);
+    MatrixXld variance1(2,2);
     variance1 << 2.3,0.0,
       0.0,1.2;
-    MatrixXd trans(2,3);
+    MatrixXld trans(2,3);
     trans << 0.5,0.4,0.1,
       0.4,0.4,0.2;
-    MatrixXd trans2(2,3);
+    MatrixXld trans2(2,3);
     trans2 << 0.6,0.3,0.1,
       0.2,0.6,0.2;
     (hhmm->seq).push_back(up<Sequence>(new Sequence(obs0,2,3,2)));
@@ -79,10 +79,10 @@ namespace hhmm{
 
   void TestHHMM::TestEmitProb()
   {
-    VectorXd test(3);
+    VectorXld test(3);
     test << 3,4,3;
     
-    VectorXd mean(3);
+    VectorXld mean(3);
     mean << 1,3,3;
     
     DM var(3);
@@ -93,8 +93,8 @@ namespace hhmm{
     a.swpMean(mean);
     a.swpVar(var);
 
-    double estmt = pow(2*M_PI,-1.5)*exp(-2.5);
-    
+    long double estmt = pow(2*M_PI,-1.5)*exp(-2.5);
+    cout << a.emit(test) << " " << estmt << endl;
     CPPUNIT_ASSERT(a.emit(test) == estmt);
   }
 
@@ -102,6 +102,7 @@ namespace hhmm{
   {
     cout << "in the Forward algorithm" << endl;
     hhmm->forward(*(hhmm->seq[0]),&(hhmm->root),&(hhmm->seq[0]->param));
+    cout << hhmm->seq[0]->param.children[0]->alpha(0,0) << endl;
   }
 
   void TestHHMM::TestBackward()
@@ -126,7 +127,7 @@ namespace hhmm{
     cout << "level is " << root->getLevel()+1 << endl;
     for(uint32_t i=0;i<seq.size();++i){
       for(uint32_t j=i;j<seq.size();++j){
-        double BETA = 0.0,ALPHA = 0.0;
+        long double BETA = 0.0,ALPHA = 0.0;
         hhmm.setIterator<parameters>(pit,pend,rit,rend,param,root);
         for(;pit != pend && rit != rend;++pit,++rit){
           BETA += (*pit)->beta(i,j) * (*rit)->getPi();

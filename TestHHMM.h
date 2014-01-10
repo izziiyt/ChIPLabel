@@ -15,11 +15,11 @@ namespace hhmm{
     //CPPUNIT_TEST(TestBackward);
     //CPPUNIT_TEST(TestAuxIn);
     //CPPUNIT_TEST(TestAuxOut);
-    // CPPUNIT_TEST(TestHorizon);
-    // CPPUNIT_TEST(TestVertical);
-    // CPPUNIT_TEST(TestCalcTmpPi);
-    // CPPUNIT_TEST(TestCalcTmpTrans);
-    // CPPUNIT_TEST(TestCalcTmpEmit);
+    //CPPUNIT_TEST(TestHorizon);
+    //CPPUNIT_TEST(TestVertical);
+    //CPPUNIT_TEST(TestCalcTmpPi);
+    //CPPUNIT_TEST(TestCalcTmpTrans);
+    //CPPUNIT_TEST(TestCalcTmpEmit);
     CPPUNIT_TEST(TestEM);
     CPPUNIT_TEST_SUITE_END();
 

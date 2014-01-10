@@ -22,22 +22,22 @@ namespace hhmm{
   class nprodHHMM final:public baseHHMM{
     friend TestHHMM;
   protected:
-    MatrixXd transMat;
+    MatrixXld transMat;
   public:
     vector<up<baseHHMM>> children;
     map<uint64_t,uint32_t> convert;
 
     nprodHHMM(uint32_t,uint32_t,uint32_t);
     nprodHHMM(uint32_t,uint32_t,uint32_t,uint32_t,baseHHMM*);
-    ~nprodHHMM() = default;
-    MatrixXd& trans();
-    double trans(up<baseHHMM> const&);
-    double trans(baseHHMM*);
-    double trans(const up<baseHHMM>&,const up<baseHHMM>&);
-    double trans(baseHHMM*,const up<baseHHMM>&);
-    double trans(const up<baseHHMM>&,baseHHMM*);
-    void cpyTransMat(MatrixXd const&);
-    double& setTrans(baseHHMM*,const up<baseHHMM>&);
+    ~nprodHHMM() noexcept {};
+    MatrixXld& trans();
+    long double trans(up<baseHHMM> const&);
+    long double trans(baseHHMM*);
+    long double trans(const up<baseHHMM>&,const up<baseHHMM>&);
+    long double trans(baseHHMM*,const up<baseHHMM>&);
+    long double trans(const up<baseHHMM>&,baseHHMM*);
+    void cpyTransMat(MatrixXld const&);
+    long double& setTrans(baseHHMM*,const up<baseHHMM>&);
     void clearParam();
   };
 }

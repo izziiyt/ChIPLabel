@@ -19,16 +19,16 @@ namespace hhmm{
     friend TestHHMM;
   protected:
     uint32_t len;
-    vector<VectorXd> V;//Observed sequence.
+    vector<VectorXld> V;//Observed sequence.
     vector<uint32_t> testV;//Fix Me.
     parameters param;
   public:
 
-    Sequence(vector<VectorXd> const&,uint32_t,uint32_t,uint32_t);
+    Sequence(vector<VectorXld> const&,uint32_t,uint32_t,uint32_t);
     Sequence(vector<uint32_t> const&,uint32_t,uint32_t,uint32_t);
     virtual ~Sequence() = default;
     //    uint32_t obs(uint32_t i) const{return testV[i];}
-    VectorXd obs(uint32_t i) const{return V[i];}
+    VectorXld obs(uint32_t i) const{return V[i];}
     uint32_t size() const{return len;}
     
   };

@@ -9,9 +9,9 @@
 using namespace std;
 using namespace Eigen;
 
-vector<VectorXd> readSample(string const& filename)
+vector<VectorXld> readSample(string const& filename)
 {
-  vector<VectorXd> result;
+  vector<VectorXld> result;
   string str;
   string substr;
   fstream ifs(filename);
@@ -25,12 +25,12 @@ vector<VectorXd> readSample(string const& filename)
     iss >> substr;
     //uint32_t index = stoi(substr);
     
-    vector<double> tmp;
+    vector<long double> tmp;
     while(iss >> substr){
-      double obs = stod(substr);
+      long double obs = stod(substr);
       tmp.push_back(obs);
     }
-    VectorXd innerResult(tmp.size());
+    VectorXld innerResult(tmp.size());
     for(uint32_t i=0;i<tmp.size();++i){innerResult(i) = tmp[i];}
     result.push_back(innerResult);
   }

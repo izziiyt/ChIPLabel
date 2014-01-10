@@ -12,17 +12,17 @@ namespace hhmm{
     return level;
   }
 
-  double baseHHMM::getPi() const
+  long double baseHHMM::getPi() const
   {
     return pi;
   }
   
-  double& baseHHMM::setPi()
+  long double& baseHHMM::setPi()
   {
     return pi;
   }
 
-  void baseHHMM::setPi(double x)
+  void baseHHMM::setPi(long double x)
 
   {
     pi = x;

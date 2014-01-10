@@ -51,7 +51,7 @@ namespace hhmm{
     void vertical(Sequence&,baseHHMM*,parameters*);
     void calcGamma(Sequence&);
     void calcGamma(Sequence&,baseHHMM*,parameters*);
-    double likelihood(Sequence&);
+    long double likelihood(Sequence&);
     void EM();
     void paramAssemble(Sequence&,baseHHMM*,parameters*);
     void paramAssemble(Sequence&);

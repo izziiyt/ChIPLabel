@@ -53,52 +53,52 @@ namespace hhmm{
     convert.insert(pair<uint64_t,uint32_t>(0,i));
   }
   
-  MatrixXd& nprodHHMM::trans()
+  MatrixXld& nprodHHMM::trans()
   {
     return transMat;
   }
   
-  double nprodHHMM::trans(baseHHMM* a)
+  long double nprodHHMM::trans(baseHHMM* a)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a)],convert[0]);
   }
 
-  double nprodHHMM::trans(up<baseHHMM> const& a)
+  long double nprodHHMM::trans(up<baseHHMM> const& a)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a.get())],convert[0]);
   }
   
-  double nprodHHMM::trans(const up<baseHHMM>& a,const up<baseHHMM>& b)
+  long double nprodHHMM::trans(const up<baseHHMM>& a,const up<baseHHMM>& b)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a.get())],
                     convert[reinterpret_cast<uint64_t>(b.get())]);
   }
 
-  double nprodHHMM::trans(baseHHMM* a,const up<baseHHMM>& b)
+  long double nprodHHMM::trans(baseHHMM* a,const up<baseHHMM>& b)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a)],
                     convert[reinterpret_cast<uint64_t>(b.get())]);
   }
 
-  double nprodHHMM::trans(const up<baseHHMM>& a,baseHHMM* b)
+  long double nprodHHMM::trans(const up<baseHHMM>& a,baseHHMM* b)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a.get())],
                     convert[reinterpret_cast<uint64_t>(b)]);
   }
 
-  void nprodHHMM::cpyTransMat(MatrixXd const& x)
+  void nprodHHMM::cpyTransMat(MatrixXld const& x)
   {
     transMat = x;
   }
 
   void nprodHHMM::clearParam()
   {
-    pi = 0,0;
+    pi = 0.0;
     transMat.setZero();
     for(auto& c:children){c->clearParam();}
   }
   
-  double& nprodHHMM::setTrans(baseHHMM* a,const up<baseHHMM>& b)
+  long double& nprodHHMM::setTrans(baseHHMM* a,const up<baseHHMM>& b)
   {
     return transMat(convert[reinterpret_cast<uint64_t>(a)],
                     convert[reinterpret_cast<uint64_t>(b.get())]);

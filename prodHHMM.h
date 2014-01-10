@@ -10,36 +10,39 @@
 using namespace std;
 using namespace Eigen;
 
+using MatrixXld = Matrix<long double,Dynamic,Dynamic>;
+using VectorXld = Matrix<long double,Dynamic,1>;
+using DM = DiagonalMatrix<long double,Dynamic>;
+
 namespace hhmm{
 
   class TestHHMM;
-  
-  using DM = DiagonalMatrix<double,Dynamic>;
 
   class prodHHMM final:public baseHHMM{
     friend TestHHMM;
   protected:
-    VectorXd mean;
-    //    vector<double> testemit;
+    VectorXld mean;
+    //    vector<long double> testemit;
     DM var;
-    //MatrixXd var;
+    //MatrixXld var;
   public:
-    double emitParent;
+    long double emitParent;
     prodHHMM(uint32_t,uint32_t,baseHHMM*);
-    ~prodHHMM() = default;
-    //void setEmit(vector<double> const& x);
-    //    vector<double>& setEmit(){return testemit;}
-    double emit(VectorXd const&) const;
-    //    double emit(uint32_t i) const;
-    VectorXd const& getMean() const;
-    VectorXd& setMean();
+    ~prodHHMM() noexcept {};
+
+    //void setEmit(vector<long double> const& x);
+    //    vector<long double>& setEmit(){return testemit;}
+    long double emit(VectorXld const&) const;
+    //    long double emit(uint32_t i) const;
+    VectorXld const& getMean() const;
+    VectorXld& setMean();
     DM const& getVariance() const;
     DM& setVariance();
-    // MatrixXd const& getVariance() const;
-    // MatrixXd& setVariance();
-    void cpyMean(VectorXd const&);
+    // MatrixXld const& getVariance() const;
+    // MatrixXld& setVariance();
+    void cpyMean(VectorXld const&);
     void cpyVar(DM const&);
-    void swpMean(VectorXd&);
+    void swpMean(VectorXld&);
     void swpVar(DM&);
     void clearParam();
   };

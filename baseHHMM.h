@@ -14,19 +14,19 @@ namespace hhmm{
   protected:
     uint32_t level;
     //transition probability from this->parent to this
-    double pi;
+    long double pi;
     //this parameter is used to standardize the pies of child-HHMMs
     //in M-step of EM algorithm.
-    double stdPi;
+    long double stdPi;
   public:
     baseHHMM* parent;
     
     baseHHMM(uint32_t,baseHHMM*);
     virtual ~baseHHMM() = default;
     uint32_t getLevel() const;
-    double getPi() const;
-    double& setPi();
-    void setPi(double x);
+    long double getPi() const;
+    long double& setPi();
+    void setPi(long double x);
     virtual void clearParam();
   };
   

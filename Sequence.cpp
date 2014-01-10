@@ -11,7 +11,7 @@ namespace hhmm{
      param(_depth,_stateNum,_V.size(),_dim)
   {}
 
-  Sequence::Sequence(vector<VectorXd> const& _V,uint32_t _stateNum,uint32_t _depth,uint32_t _dim)
+  Sequence::Sequence(vector<VectorXld> const& _V,uint32_t _stateNum,uint32_t _depth,uint32_t _dim)
     :len(_V.size()),
      V(_V),
      param(_depth,_stateNum,_V.size(),_dim)

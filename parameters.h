@@ -18,6 +18,9 @@ using up = unique_ptr<T>;
 template<typename T>
 using diVector = vector<vector<T>>;
 
+using MatrixXld = Matrix<long double,Dynamic,Dynamic>;
+using VectorXld = Matrix<long double,Dynamic,1>;
+
 namespace hhmm{
 
   class TestHHMM;
@@ -26,28 +29,28 @@ namespace hhmm{
   class parameters{
     friend TestHHMM;
   private:
-    MatrixXd xiContent;
-    MatrixXd tmpTransContent;//auxiliary variables for parameter's alteration
+    MatrixXld xiContent;
+    MatrixXld tmpTransContent;//auxiliary variables for parameter's alteration
   public:
-    upperTriangle<double> alpha;//forward variables
-    upperTriangle<double> beta;//backward ward variables
-    vector<double> etaIn;//auxiliary variables
-    vector<double> etaOut;
-    vector<double> chi;
-    vector<double> gammaIn;
-    vector<double> gammaOut;
+    upperTriangle<long double> alpha;//forward variables
+    upperTriangle<long double> beta;//backward ward variables
+    vector<long double> etaIn;//auxiliary variables
+    vector<long double> etaOut;
+    vector<long double> chi;
+    vector<long double> gammaIn;
+    vector<long double> gammaOut;
     parameters* parent;
     vector<up<parameters>> children;
     
-    double tmpPi;//auxiliary variables for parameter's alteration
-    double tmpEmitParent;//auxiliary variables for parameter's alteration
-    VectorXd tmpMean;//auxiliary variables for parameter's alteration
+    long double tmpPi;//auxiliary variables for parameter's alteration
+    long double tmpEmitParent;//auxiliary variables for parameter's alteration
+    VectorXld tmpMean;//auxiliary variables for parameter's alteration
     DM tmpVariance;
-    //vector<double> tmpEmit;
+    //vector<long double> tmpEmit;
     
-    double& xi(uint32_t x,baseHHMM* y,nprodHHMM* z);
-    double& tmpTrans(baseHHMM* x,baseHHMM* y,nprodHHMM* z);
-    MatrixXd& tmpTrans();
+    long double& xi(uint32_t x,baseHHMM* y,nprodHHMM* z);
+    long double& tmpTrans(baseHHMM* x,baseHHMM* y,nprodHHMM* z);
+    MatrixXld& tmpTrans();
 
     parameters(uint32_t,uint32_t,uint32_t,uint32_t,parameters*);
     parameters(uint32_t,uint32_t,uint32_t,parameters*);
