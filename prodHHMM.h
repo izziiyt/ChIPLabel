@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <Eigen/Dense>
 #include <cmath>
+#include <random>
 #include "baseHHMM.hpp"
 
 using namespace std;
@@ -24,7 +25,6 @@ namespace hhmm{
     VectorXld mean;
     //    vector<long double> testemit;
     DM var;
-    //MatrixXld var;
   public:
     long double emitParent;
     prodHHMM(uint32_t,uint32_t,baseHHMM*);
@@ -38,13 +38,12 @@ namespace hhmm{
     VectorXld& setMean();
     DM const& getVariance() const;
     DM& setVariance();
-    // MatrixXld const& getVariance() const;
-    // MatrixXld& setVariance();
     void cpyMean(VectorXld const&);
     void cpyVar(DM const&);
     void swpMean(VectorXld&);
     void swpVar(DM&);
     void clearParam();
+    void initParam(vector<long double> const&);
   };
 
 }

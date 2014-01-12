@@ -8,6 +8,7 @@
 #include <map>
 #include "baseHHMM.hpp"
 #include "prodHHMM.hpp"
+#include "myalgorithm.hpp"
 
 using namespace std;
 using namespace Eigen;
@@ -39,6 +40,7 @@ namespace hhmm{
     void cpyTransMat(MatrixXld const&);
     long double& setTrans(baseHHMM*,const up<baseHHMM>&);
     void clearParam();
+    void initParam(vector<long double> const&);
   };
 }
 

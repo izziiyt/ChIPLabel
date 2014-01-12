@@ -1,5 +1,5 @@
-CC	= clang++
-CFLAGS	= -Wall -std=c++11 -Wextra -pedantic
+CC	= g++
+CFLAGS	= -Wall -std=c++11 -Wextra -pedantic -fopenmp
 INCLUDES = -I/home/yuto/local/c++/include
 
 .PHONY: check-syntax clean

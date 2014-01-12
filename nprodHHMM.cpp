@@ -97,6 +97,26 @@ namespace hhmm{
     transMat.setZero();
     for(auto& c:children){c->clearParam();}
   }
+
+  void nprodHHMM::initParam(vector<long double> const& xs)
+  {
+    mt19937 gen(children.size());
+    //initiation of the vertical transition probability.
+    vector<uint32_t> alpha(children.size(),1);
+    ytd::dirichlet_distribution<long double> dd0(alpha);
+    auto x = dd0(gen);
+    for(uint32_t i=0;i<children.size();++i){
+      children[i]->setPi() = x[i];
+    }
+    //initiation of the horizontal transition probability.
+    alpha.push_back(1);
+    ytd::dirichlet_distribution<long double> dd1(alpha);
+    for(uint32_t i=0;i<transMat.rows();++i){
+      auto y = dd1(gen);
+      transMat.row(i) = Map<VectorXld>(&y[0],y.size());
+    }
+    for(auto& c:children){c->initParam(xs);}
+  }
   
   long double& nprodHHMM::setTrans(baseHHMM* a,const up<baseHHMM>& b)
   {

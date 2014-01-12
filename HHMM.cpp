@@ -1,5 +1,6 @@
 #include "HHMM.h"
 #include <iostream>
+#include <omp.h>
 
 namespace hhmm{
 
@@ -511,6 +512,11 @@ namespace hhmm{
   {
     root.clearParam();
   }
+
+  // void HHMM::initParam()
+  // {
+  //   root.initParam();
+  // }
   
   //assemble sequences' tmpValues, excluding the variance variables
   void HHMM::varianceAssemble(Sequence& seq,baseHHMM* root,parameters* param)
@@ -564,6 +570,9 @@ namespace hhmm{
   //Excluding variance variables
   void HHMM::paramStandardize(baseHHMM* root)
   {
+    //It's important.
+    root->setPi() = 1.0;
+
     long double tmp = 0.0;
     //In not the deepest level.
     if(root->getLevel() < depth-1){
@@ -686,23 +695,26 @@ namespace hhmm{
   }
   void HHMM::EM()
   {
-    for(uint32_t i=0;i<1;++i){
+    for(uint32_t i=0;i<20;++i){
 
       //E-step by multi-threading
-      for(auto& s:seq){
-        forward(*s);
-        backward(*s);
-        auxIn(*s);
-        auxOut(*s);
-        horizon(*s);
-        vertical(*s);
-        calcGamma(*s);
-        calcTmpPi(*s);
-        calcTmpTrans(*s);
-        //calcTmpEmit(*s);
-        calcTmpMean(*s);
+      #pragma omp parallel for
+      for(uint32_t j=0;j<seq.size();++j){
+        forward(*seq[j]);
+        backward(*seq[j]);
+        auxIn(*seq[j]);
+        auxOut(*seq[j]);
+        horizon(*seq[j]);
+        vertical(*seq[j]);
+        calcGamma(*seq[j]);
+        calcTmpPi(*seq[j]);
+        calcTmpTrans(*seq[j]);
+        //calcTmpEmit(*seq[j]);
+        calcTmpMean(*seq[j]);
       }
+
       cout << "likelihood: " << likelihood(*seq[0]) << endl;
+
       //M-step by single-threading
       clearParam();
       for(auto& s:seq){paramAssemble(*s);}
@@ -710,33 +722,14 @@ namespace hhmm{
 
       
       //E-step for the variance variables by multi-threading
-      for(auto& s:seq){
-        calcTmpVariance(*s);
-        varianceAssemble(*s);
+      #pragma omp parallel for
+      for(uint32_t j=0;j<seq.size();++j){
+        calcTmpVariance(*seq[j]);
       }
 
       //M-step for the variance variables by single-threading
+      for(auto& s:seq){varianceAssemble(*s);}
       varianceStandardize();
-      // cout << cast_prod(cast_nprod(root.children[0].get())->children[0].get())->getMean() << endl;
-      // cout << cast_prod(cast_nprod(root.children[0].get())->children[1].get())->getMean() << endl;
-      // cout << cast_prod(cast_nprod(root.children[1].get())->children[0].get())->getMean() << endl;
-      // cout << cast_prod(cast_nprod(root.children[1].get())->children[1].get())->getMean() << endl;
-      // cout << "------------------" << endl;
-      // // cout << root.trans() << endl;
-      // // cout << cast_nprod(root.children[0].get())->trans() << endl;
-      // // cout << cast_nprod(root.children[1].get())->trans() << endl;
-      // // cout << root.children[0]->getPi() << endl;
-      // // cout << root.children[1]->getPi() << endl;
-      // // cout << cast_nprod(root.children[0].get())->children[0]->getPi() << endl;
-      // // cout << cast_nprod(root.children[0].get())->children[1]->getPi() << endl;
-      // // cout << cast_nprod(root.children[1].get())->children[0]->getPi() << endl;
-      // // cout << cast_nprod(root.children[1].get())->children[1]->getPi() << endl;
-
-      // cout << cast_prod(cast_nprod(root.children[0].get())->children[0].get())->getVariance().diagonal() << endl;
-      // cout << cast_prod(cast_nprod(root.children[0].get())->children[1].get())->getVariance().diagonal() << endl;
-      // cout << cast_prod(cast_nprod(root.children[1].get())->children[0].get())->getVariance().diagonal() << endl;
-      // cout << cast_prod(cast_nprod(root.children[1].get())->children[1].get())->getVariance().diagonal() << endl;
-
     }
   }
 

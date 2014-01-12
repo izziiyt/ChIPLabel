@@ -2,6 +2,7 @@
 #define BASEHHMM_H
 
 #include <cstdint>
+#include <vector>
 
 using namespace std;
 
@@ -28,8 +29,8 @@ namespace hhmm{
     long double& setPi();
     void setPi(long double x);
     virtual void clearParam();
+    virtual void initParam(vector<long double> const&);
   };
-  
 }
 
 #endif

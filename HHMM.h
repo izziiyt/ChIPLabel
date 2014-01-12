@@ -62,6 +62,7 @@ namespace hhmm{
     void varianceStandardize(baseHHMM*);
     void varianceStandardize();
     void clearParam();
+    void initParam();
     void calcTmpPi(Sequence&);
     void calcTmpPi(Sequence&,baseHHMM*,parameters*);
     void calcTmpTrans(Sequence&);

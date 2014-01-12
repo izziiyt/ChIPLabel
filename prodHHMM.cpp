@@ -7,7 +7,6 @@ namespace hhmm{
   prodHHMM::prodHHMM(uint32_t _level,uint32_t _dim,baseHHMM* _parent)
     :baseHHMM(_level,_parent),
      mean(_dim),
-     //var(_dim,_dim)
      var(_dim)
   {}
 
@@ -15,17 +14,6 @@ namespace hhmm{
   {
     long double mom = sqrt(pow(2 * M_PI,mean.size()) * var.diagonal().prod());
     long double son = exp(-0.5 * (O - mean).transpose() * var.inverse()*(O - mean));
-    if(std::isnan(son/mom)){std::cout << "yes" << std::endl;
-    cout << O << endl;
-    cout << var.diagonal() << endl;
-    cout << mean << endl;
-    cout << mom << " " << son << endl;
-    cout << "------------ " << endl;
-    cout << (O - mean).transpose() << endl;
-    cout << var.inverse().diagonal() << endl;
-    cout << (O - mean) << endl; 
-    exit(1);
-    }
     return son/mom;
   }
 
@@ -87,6 +75,18 @@ namespace hhmm{
     mean.setZero();
     //for(uint32_t i=0;i<testemit.size();++i){testemit[i] = 0.0;}
     var.setZero();
+  }
+
+    void prodHHMM::initParam(vector<long double> const& xs)
+  {
+    mt19937 gen((uint64_t)this);
+    for(uint32_t i=0;i<xs.size();++i){
+      normal_distribution<long double> nd(xs[i],1.0);
+      mean(i) = nd(gen);
+    }
+    for(uint32_t i=0;i<var.diagonal().size();++i){
+      var.diagonal()(i) = 1.0;
+    }
   }
 
 }

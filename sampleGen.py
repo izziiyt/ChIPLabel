@@ -7,4 +7,4 @@ def sampleGen(filename):
     wf.close()
 
 if __name__ == "__main__":
-    sampleGen("sample.txt")
+    sampleGen("sample0.txt")

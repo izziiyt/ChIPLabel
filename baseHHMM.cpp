@@ -32,4 +32,8 @@ namespace hhmm{
   {
     pi = 0.0;
   }
+
+  void baseHHMM::initParam(vector<long double> const& xs)
+  {}
+
 }
