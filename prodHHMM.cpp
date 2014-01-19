@@ -77,6 +77,14 @@ namespace hhmm{
     var.setZero();
   }
 
+  void prodHHMM::check()
+  {
+    cout << "mean" << endl;
+    cout << mean << endl;
+    cout << "variance" << endl;
+    cout << var.diagonal() << endl;
+  }
+
     void prodHHMM::initParam(vector<long double> const& xs)
   {
     mt19937 gen((uint64_t)this);

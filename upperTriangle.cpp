@@ -6,12 +6,15 @@
 namespace hhmm{
 
   template<typename T>
-  void upperTriangle<T>::clear(){
-    for(auto& i:val){
-      for(auto& j:i){
-        j = 0.0;
-      }
-    }
+  void upperTriangle<T>::clear()
+  {
+    val.clear();
+  }
+
+  template<typename T>
+  void upperTriangle<T>::setZero()
+  {
+    for(auto& i:val){for(auto& j:i){j = 0.0;}}
   }
 
   template<typename T>
@@ -28,13 +31,29 @@ namespace hhmm{
   }
 
   template<typename T>
-  void upperTriangle<T>::print() const{
+  void upperTriangle<T>::print() const
+  {
     for(uint32_t i=0;i<val.size();++i){
       for(uint32_t j=0;j<val.size();++j){
         if(j < i){cout << 0 << " ";}
         else{cout << val[i][j-i] << " ";}
       }
       cout << endl;
+    }
+  }
+
+  template<typename T>
+  uint32_t upperTriangle<T>::size() const  
+  {
+    return val.size();
+  }
+
+  template<typename T>
+  void upperTriangle<T>::resize(uint32_t l)
+  {
+    val.resize(l);
+    for(uint32_t i=0;i<l;++i){
+      val[i].resize(l-i);
     }
   }
 

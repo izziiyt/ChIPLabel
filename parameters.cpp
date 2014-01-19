@@ -42,7 +42,7 @@ namespace hhmm{
      etaOut(_length,0.0),
      chi(_length,0.0),
      gammaIn(_length,0.0),
-     gammaOut(_length,0.0),
+     //gammaOut(_length,0.0),
      parent(_parent),
      //tmpEmit(_dim)
      tmpMean(_dim),
@@ -64,6 +64,24 @@ namespace hhmm{
                          (new parameters(_depth-1,_childNum,_length,_dim,this)));
     }
     children.shrink_to_fit();
+  }
+
+  void parameters::transform()
+  {
+    delta = move(alpha);
+    beta.clear();
+    etaIn.clear();
+    etaOut.clear();
+    chi.clear();
+    gammaIn.clear();
+    gammaOut.clear();
+    phi.resize(delta.size());
+    tau.resize(delta.size());
+    if(not children.empty()){
+      for(auto& c:children){
+        c->transform();
+      }
+    }
   }
 
   long double& parameters::xi(uint32_t x,baseHHMM* y,nprodHHMM* z)

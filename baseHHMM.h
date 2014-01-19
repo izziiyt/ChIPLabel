@@ -29,6 +29,7 @@ namespace hhmm{
     long double& setPi();
     void setPi(long double x);
     virtual void clearParam();
+    virtual void check(){}
     virtual void initParam(vector<long double> const&);
   };
 }

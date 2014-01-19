@@ -15,7 +15,15 @@ namespace hhmm{
     :len(_V.size()),
      V(_V),
      param(_depth,_stateNum,_V.size(),_dim)
-  {}  
+  {}
+
+  void Sequence::print(string const& filename) const
+  {
+    ofstream of(filename);
+    for(auto& s:state){
+      of << s << endl;
+    }
+  }
 }
 
 #endif

@@ -32,9 +32,9 @@ namespace hhmm{
     MatrixXld xiContent;
     MatrixXld tmpTransContent;//auxiliary variables for parameter's alteration
   public:
-    upperTriangle<long double> alpha;//forward variables
-    upperTriangle<long double> beta;//backward ward variables
-    vector<long double> etaIn;//auxiliary variables
+    upperTriangle<long double> alpha;
+    upperTriangle<long double> beta;
+    vector<long double> etaIn;
     vector<long double> etaOut;
     vector<long double> chi;
     vector<long double> gammaIn;
@@ -48,6 +48,10 @@ namespace hhmm{
     DM tmpVariance;
     //vector<long double> tmpEmit;
     
+    upperTriangle<long double> delta;
+    upperTriangle<uint32_t> phi;
+    upperTriangle<uint32_t> tau;
+    
     long double& xi(uint32_t x,baseHHMM* y,nprodHHMM* z);
     long double& tmpTrans(baseHHMM* x,baseHHMM* y,nprodHHMM* z);
     MatrixXld& tmpTrans();
@@ -55,6 +59,7 @@ namespace hhmm{
     parameters(uint32_t,uint32_t,uint32_t,uint32_t,parameters*);
     parameters(uint32_t,uint32_t,uint32_t,parameters*);
     parameters(uint32_t,uint32_t,uint32_t,uint32_t);
+    void transform();
     ~parameters() = default;
    };
 

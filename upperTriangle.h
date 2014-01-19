@@ -21,6 +21,9 @@ namespace hhmm{
     T& operator()(uint32_t x,uint32_t y);
     void print() const;
     void clear();
+    void setZero();
+    uint32_t size() const;
+    void resize(uint32_t);
   };
 
 }

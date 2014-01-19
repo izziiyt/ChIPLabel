@@ -6,7 +6,8 @@
 #include <memory>
 #include <Eigen/Dense>
 #include <functional>
-
+#include <iostream>
+#include <omp.h>
 #include "Sequence.hpp"
 #include "parameters.hpp"
 #include "baseHHMM.hpp"
@@ -52,7 +53,7 @@ namespace hhmm{
     void calcGamma(Sequence&);
     void calcGamma(Sequence&,baseHHMM*,parameters*);
     long double likelihood(Sequence&);
-    void EM();
+
     void paramAssemble(Sequence&,baseHHMM*,parameters*);
     void paramAssemble(Sequence&);
     void varianceAssemble(Sequence&,baseHHMM*,parameters*);
@@ -62,7 +63,7 @@ namespace hhmm{
     void varianceStandardize(baseHHMM*);
     void varianceStandardize();
     void clearParam();
-    void initParam();
+
     void calcTmpPi(Sequence&);
     void calcTmpPi(Sequence&,baseHHMM*,parameters*);
     void calcTmpTrans(Sequence&);
@@ -73,9 +74,17 @@ namespace hhmm{
     void calcTmpMean(Sequence&,baseHHMM*,parameters*);
     void calcTmpVariance(Sequence&);
     void calcTmpVariance(Sequence&,baseHHMM*,parameters*);
+    void innerBacktrack(Sequence&,parameters const&,uint32_t,uint32_t,uint32_t);
+    void backtrack(Sequence&,parameters const&,uint32_t,uint32_t);
+    void viterbi(Sequence&,baseHHMM*,parameters*);
 
   public:
     HHMM(uint32_t,uint32_t,uint32_t);
+    void initParam(vector<long double> const&);
+    void EM(uint32_t);
+    void viterbi(Sequence&);
+    vector<up<Sequence>>& setSeq(){return seq;};
+    void check();
   };
 }
 

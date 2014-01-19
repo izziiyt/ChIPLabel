@@ -123,4 +123,34 @@ namespace hhmm{
     return transMat(convert[reinterpret_cast<uint64_t>(a)],
                     convert[reinterpret_cast<uint64_t>(b.get())]);
   }
+
+  void nprodHHMM::check()
+  {
+    for(uint32_t i=0;i<transMat.rows();++i){
+      cout << "Is this 1 ? : " << transMat.row(i).sum() << endl;
+    }
+    long double tmp = 0.0;
+    for(auto& c:children){tmp += c->getPi();}
+    cout << "Is this 1 ? : " << tmp << endl;
+    
+    for(auto& c:children){c->check();}
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

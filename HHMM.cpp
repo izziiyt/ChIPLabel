@@ -1,6 +1,4 @@
 #include "HHMM.h"
-#include <iostream>
-#include <omp.h>
 
 namespace hhmm{
 
@@ -13,7 +11,7 @@ namespace hhmm{
   void HHMM::forward(Sequence& seq,baseHHMM* root,parameters* param)
   {
     //Clear the alpha_values.
-    if(root->getLevel() != 0){param->alpha.clear();}
+    if(root->getLevel() != 0){param->alpha.setZero();}
 
     //If it is the deepest level,it returns;
     if(root->getLevel() == depth-1){return;}
@@ -56,8 +54,6 @@ namespace hhmm{
               cast_nprod(rit->get())->trans(*crit);
           }
           (*pit)->alpha(i,i) *= (*rit)->getPi();
-
-
         }
         long double tmp0 = 0.0,tmp1 = 0.0,tmp2 = 0.0;
         for(uint32_t j=i+1;j<seq.size();++j){
@@ -88,7 +84,7 @@ namespace hhmm{
   void HHMM::backward(Sequence& seq,baseHHMM* root,parameters* param)
   {
     //Clear the beta_values.
-    if(root->getLevel() != 0){param->beta.clear();}
+    if(root->getLevel() != 0){param->beta.setZero();}
 
     //If it is the deepest level,it returns;
     if(root->getLevel() == depth-1){return;}
@@ -165,11 +161,10 @@ namespace hhmm{
     myit<baseHHMM> rit,rend;
     //In the second top level.
     if(root->getLevel() == 1){
-      //Clear the etaIn_values.
-      for(uint32_t i=0;i<seq.size();++i){param->etaIn[i] = 0.0;}
       //i=0
       param->etaIn[0] = root->getPi();
       for(int64_t i=1;i<seq.size();++i){
+        param->etaIn[i] = 0.0;//Clear the etaIn_values.
         setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
         for(;pit != pend && rit != rend;++pit,++rit){
           param->etaIn[i] += (*pit)->alpha(0,i-1) *     \
@@ -177,13 +172,12 @@ namespace hhmm{
         }
       }
     }
-    //In not the second top level.
+    //In neither the top nor the second top level.
     else if(root->getLevel() > 1){
-      //Clear the etaIn_values.
-      for(uint32_t i=0;i<seq.size();++i){param->etaIn[i] = 0.0;}
       //i=0
       param->etaIn[0] = param->parent->etaIn[0] * root->getPi();
       for(int64_t i=1;i<seq.size();++i){
+        param->etaIn[i] = 0.0;//Clear the etaIn_values.
         for(uint32_t j=0;j<i;++j){
           long double tmp;
           setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
@@ -211,9 +205,8 @@ namespace hhmm{
     myit<baseHHMM> rit,rend;
     //In the second top level.
     if(root->getLevel() == 1){
-      //Clear the etaOut_values.
-      for(uint32_t i=0;i<seq.size();++i){param->etaOut[i] = 0.0;}
       for(int64_t i=0;i<seq.size()-1;++i){
+        param->etaOut[i] = 0.0;//Clear the etaOut_values.
         setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
         for(;pit != pend && rit != rend;++pit,++rit){
           param->etaOut[i] += (*pit)->beta(i+1,seq.size()-1) *
@@ -222,11 +215,10 @@ namespace hhmm{
       }
       param->etaOut[seq.size()-1] = cast_nprod(root->parent)->trans(root);
     }
-    //In the level that is not the deepest nor the second deepest.  
+    //In neither the top nor the second top.  
     else if(root->getLevel() > 1){
-      //Clear the etaOut_values.
-      for(uint32_t i=0;i<seq.size();++i){param->etaOut[i] = 0.0;}
       for(int64_t i=0;i<seq.size()-1;++i){
+        param->etaOut[i] = 0.0;//Clear the etaOut_values.
         for(uint32_t j=i+1;j<seq.size();++j){
           long double tmp;
           setIterator<parameters>(pit,pend,rit,rend,param->parent,root->parent);
@@ -449,7 +441,6 @@ namespace hhmm{
         param->tmpMean += (param->chi[i] + param->gammaIn[i]) * seq.obs(i);
         param->tmpEmitParent += param->chi[i] + param->gammaIn[i];
       }
-      //cout << param->tmpMean << endl;
     }
     else{
       setIterator<parameters>(pit,pend,rit,rend,param,root);
@@ -513,10 +504,10 @@ namespace hhmm{
     root.clearParam();
   }
 
-  // void HHMM::initParam()
-  // {
-  //   root.initParam();
-  // }
+  void HHMM::initParam(vector<long double> const& v)
+  {
+    root.initParam(v);
+  }
   
   //assemble sequences' tmpValues, excluding the variance variables
   void HHMM::varianceAssemble(Sequence& seq,baseHHMM* root,parameters* param)
@@ -537,7 +528,6 @@ namespace hhmm{
       cast_prod(root)->setVariance().diagonal() += param->tmpVariance.diagonal();
     }
   }
-
 
   void HHMM::paramAssemble(Sequence& seq,baseHHMM* root,parameters* param)
   {
@@ -570,8 +560,9 @@ namespace hhmm{
   //Excluding variance variables
   void HHMM::paramStandardize(baseHHMM* root)
   {
-    //It's important.
-    root->setPi() = 1.0;
+    if(root->getLevel() == 0){
+      root->setPi() = 1.0;
+    }
 
     long double tmp = 0.0;
     //In not the deepest level.
@@ -693,9 +684,9 @@ namespace hhmm{
   void HHMM::varianceStandardize(){
     varianceStandardize(&root);
   }
-  void HHMM::EM()
+  void HHMM::EM(uint32_t loop)
   {
-    for(uint32_t i=0;i<20;++i){
+    for(uint32_t i=0;i<loop;++i){
 
       //E-step by multi-threading
       #pragma omp parallel for
@@ -713,7 +704,15 @@ namespace hhmm{
         calcTmpMean(*seq[j]);
       }
 
-      cout << "likelihood: " << likelihood(*seq[0]) << endl;
+      // long double lh = 0.0;
+      // for(auto& s:seq){lh += likelihood(*s);}
+      // lh /= seq.size();
+      // cout << lh << endl;
+
+      root.check();
+      cout << "---------------------" << endl;
+      
+      //      cout << "likelihood: " << likelihood(*seq[0]) << endl;
 
       //M-step by single-threading
       clearParam();
@@ -733,7 +732,156 @@ namespace hhmm{
     }
   }
 
+  void HHMM::viterbi(Sequence& seq,baseHHMM* root,parameters* param)
+  {
+    //If it is the deepest level,it returns;
+    if(root->getLevel() == depth-1){return;}
+    //Declear iterators.
+    myit<parameters> pit,pend,bpit,bpend,cpit,cpend;
+    myit<baseHHMM> rit,rend,brit,brend,crit,crend;
+    //At first,viterbi(children).
+    setIterator<parameters>(pit,pend,rit,rend,param,root);
+    for(;pit != pend && rit != rend;++pit,++rit){
+      viterbi(seq,rit->get(),pit->get());
+    }
+
+    //In the second deepest level.
+    if(root->getLevel() == depth-2){
+      for(uint32_t i=0;i<seq.size();++i){
+        setIterator<parameters>(pit,pend,rit,rend,param,root);
+        for(;pit != pend && rit != rend;++pit,++rit){
+          (*pit)->delta(i,i) = (*rit)->getPi() * cast_prod(rit->get())->emit(seq.obs(i));
+          (*pit)->phi(i,i) = -1;
+          (*pit)->tau(i,i) = i;
+        }
+        for(uint32_t j=i+1;j<seq.size();++j){
+          setIterator<parameters>(pit,pend,rit,rend,param,root);
+          for(;pit != pend && rit != rend;++pit,++rit){
+            long double tmp = 0.0,mx = 0.0;
+            setIterator<parameters>(bpit,bpend,brit,brend,param,root);
+            for(;bpit != bpend && brit != brend;++bpit,++brit){
+              tmp = (*bpit)->delta(i,j-1) * cast_nprod(root)->trans(*brit,*rit);
+              if(tmp > mx){
+                mx = tmp;
+                (*pit)->delta(i,j) = tmp;
+                (*pit)->phi(i,j) = cast_nprod(root)->convert[(uint64_t)brit->get()];
+              }
+            }
+            (*pit)->delta(i,j) *= cast_prod(rit->get())->emit(seq.obs(j));
+            (*pit)->tau(i,j) = j;
+          }
+        }
+      }
+    }
+    //In the level that is neither the deepest nor the second deepest.  
+    else{
+      for(uint32_t i=0;i<seq.size();++i){
+        setIterator<parameters>(pit,pend,rit,rend,param,root);
+        for(;pit != pend && rit != rend;++pit,++rit){
+          long double tmp = 0.0,mx = 0.0;
+          setIterator<parameters>(cpit,cpend,crit,crend,pit->get(),rit->get());
+          for(;cpit != cpend && crit != crend;++cpit,++crit){
+            tmp = (*cpit)->delta(i,i) * cast_nprod(rit->get())->trans(*crit);
+            if(tmp > mx){
+              mx = tmp;
+              (*pit)->delta(i,i) = tmp;
+            }
+          }
+          (*pit)->delta(i,i) *= (*rit)->getPi();
+          (*pit)->phi(i,i) = -1;
+          (*pit)->tau(i,i) = i;
+        }
+
+        for(uint32_t j=i+1;j<seq.size();++j){
+          vector<long double> Delta(j-i+1,0.0);
+          vector<uint64_t> Phi(j-i+1,0);
+          setIterator<parameters>(pit,pend,rit,rend,param,root);
+          for(;pit != pend && rit != rend;++pit,++rit){
+            for(uint32_t k=i+1;k<=j;++k){
+              long double R = 0.0,tmp = 0.0;
+              setIterator<parameters>(cpit,cpend,crit,crend,pit->get(),rit->get());
+              for(;cpit != cpend && crit != crend;++cpit,++crit){
+                tmp = (*cpit)->delta(k,j) * cast_nprod(rit->get())->trans(*crit);
+                if(tmp > R){
+                  R = tmp;
+                }
+              }
+              long double mx = 0.0;
+              setIterator<parameters>(bpit,bpend,brit,brend,param,root);
+              for(;bpit != bpend && brit != brend;++bpit,++brit){
+                tmp = (*bpit)->delta(i,k-1) * cast_nprod(root)->trans(*brit,*rit);
+                if(tmp > mx){
+                  mx = tmp;
+                  Delta[k-i] = tmp;
+                  Phi[k-i] = cast_nprod(root)->convert[(uint64_t)brit->get()];
+                }
+              }
+              Delta[k-i] *= R;
+            }
+            long double tmp = 0.0;
+            setIterator<parameters>(cpit,cpend,brit,brend,pit->get(),rit->get());
+            for(Delta[0] = 0.0;cpit != cpend && crit != crend;++cpit,++crit){
+              tmp = (*cpit)->delta(i,j) * cast_nprod(rit->get())->trans(*crit);
+              if(tmp > Delta[0]){
+               Delta[0] = tmp;
+              }
+            }
+            Delta[0] *= (*rit)->getPi();
+            Phi[0] = -1;
+            
+            long double mx = 0.0;
+            for(uint32_t l=0;l<Delta.size();++l){
+              if(Delta[l] > mx){
+                (*pit)->delta(i,j) = Delta[l];
+                (*pit)->tau(i,j) = l+i;
+                (*pit)->phi(i,j) = Phi[l];
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  void HHMM::viterbi(Sequence& s)
+  {
+    viterbi(s,&root,&(s.param));
+    s.state.resize(seq.size());
+    backtrack(s,s.param,0,s.size());
+    for(auto& a:s.state){cout << a;}
+    cout << endl;
+  }
+
+  void HHMM::backtrack(Sequence& seq,parameters const& param,uint32_t begin,uint32_t end)
+  {
+    if(param.children.empty()){return;}
+    long double tmp = 0.0;
+    uint32_t index = 0;
+    for(uint32_t i=0;i<param.children.size();++i){
+      if(param.children[i]->delta(begin,end-1) > tmp){
+        tmp = param.children[i]->delta(begin,end-1);
+        index = i;
+      }
+    }
+    innerBacktrack(seq,param,index,begin,end);
+  }
+
+  void HHMM::innerBacktrack(Sequence& seq,parameters const& param,uint32_t index,uint32_t begin,uint32_t end)
+  {
+    auto tmpPhi = param.children[index]->phi(begin,end-1);
+    auto tmpTau = param.children[index]->tau(begin,end-1);
+    for(uint32_t i=tmpTau;i<end;++i){
+      seq.state[i] *= 10;
+      seq.state[i] += index;
+    }
+    if(tmpPhi != -1){
+      innerBacktrack(seq,param,tmpPhi,begin,tmpTau);
+    }
+    backtrack(seq,*(param.children[index]),tmpTau,end);
+  }
 }
+
+
 
 
 

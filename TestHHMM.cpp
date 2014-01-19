@@ -29,8 +29,8 @@ namespace hhmm{
 
     auto castn = [](baseHHMM* x){return dynamic_cast<nprodHHMM*>(x);};
     auto castp = [](baseHHMM* x){return dynamic_cast<prodHHMM*>(x);};
-    vector<VectorXld> obs0 = readSample("sample0.txt");
-    vector<VectorXld> obs1 = readSample("sample1.txt");
+    vector<VectorXld> obs0 = read("sample0.txt");
+    vector<VectorXld> obs1 = read("sample1.txt");
     //    vector<uint32_t> obs1 = readSample("../sample1.txt");
     //    vector<long double> emit0 = {0.2,0.8};
     //    vector<long double> emit1 = {0.6,0.4};

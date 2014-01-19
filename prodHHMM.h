@@ -43,6 +43,7 @@ namespace hhmm{
     void swpMean(VectorXld&);
     void swpVar(DM&);
     void clearParam();
+    void check();
     void initParam(vector<long double> const&);
   };
 

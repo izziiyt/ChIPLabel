@@ -41,6 +41,7 @@ namespace hhmm{
     long double& setTrans(baseHHMM*,const up<baseHHMM>&);
     void clearParam();
     void initParam(vector<long double> const&);
+    void check();
   };
 }
 
