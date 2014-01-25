@@ -45,6 +45,7 @@ namespace hhmm{
     void clearParam();
     void check();
     void initParam(vector<long double> const&);
+    void log(uint32_t,uint32_t);
   };
 
 }

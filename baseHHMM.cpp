@@ -36,4 +36,6 @@ namespace hhmm{
   void baseHHMM::initParam(vector<long double> const& xs)
   {}
 
+  void baseHHMM::log(uint32_t loop,uint32_t ID)
+  {}
 }

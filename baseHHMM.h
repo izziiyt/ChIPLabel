@@ -31,6 +31,7 @@ namespace hhmm{
     virtual void clearParam();
     virtual void check(){}
     virtual void initParam(vector<long double> const&);
+    virtual void log(uint32_t,uint32_t);
   };
 }
 

@@ -74,8 +74,8 @@ namespace hhmm{
     void calcTmpMean(Sequence&,baseHHMM*,parameters*);
     void calcTmpVariance(Sequence&);
     void calcTmpVariance(Sequence&,baseHHMM*,parameters*);
-    void innerBacktrack(Sequence&,parameters const&,uint32_t,uint32_t,uint32_t);
-    void backtrack(Sequence&,parameters const&,uint32_t,uint32_t);
+    void innerBacktrack(Sequence&,parameters const&,uint32_t,uint32_t,uint32_t,uint32_t);
+    void backtrack(Sequence&,parameters const&,uint32_t,uint32_t,uint32_t);
     void viterbi(Sequence&,baseHHMM*,parameters*);
 
   public:

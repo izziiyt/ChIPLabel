@@ -4,7 +4,6 @@ namespace hhmm{
 
   //constructor for root Node.
   nprodHHMM::nprodHHMM(uint32_t _depth,uint32_t _stateNum,uint32_t _dim)
-
     :baseHHMM(0,nullptr),
      transMat(_stateNum,_stateNum+1)
   {
@@ -126,14 +125,28 @@ namespace hhmm{
 
   void nprodHHMM::check()
   {
-    for(uint32_t i=0;i<transMat.rows();++i){
-      cout << "Is this 1 ? : " << transMat.row(i).sum() << endl;
+    cout << "trans" << endl;
+    cout << transMat << endl;
+    cout << "pi of children" << endl;
+    for(auto& c:children){
+      cout << c->getPi() << " ";
     }
-    long double tmp = 0.0;
-    for(auto& c:children){tmp += c->getPi();}
-    cout << "Is this 1 ? : " << tmp << endl;
-    
+    cout << endl;
     for(auto& c:children){c->check();}
+  }
+
+  void nprodHHMM::log(uint32_t loop,uint32_t ID)
+  {
+    ofstream ofs("../data/log/state" + to_string(ID),ios::out | ios::app);
+    ofs << "loop " << loop << endl;
+    for(auto& c:children){
+      ofs << c->getPi() << " ";
+    }
+    ofs << endl;
+    ofs << transMat << endl;
+    for(uint32_t i=0;i<children.size();++i){
+      children[i]->log(loop,ID*10+i);
+    }
   }
 }
 
