@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <string>
 
 using namespace std;
 
@@ -31,7 +32,7 @@ namespace hhmm{
     virtual void clearParam();
     virtual void check(){}
     virtual void initParam(vector<long double> const&);
-    virtual void log(uint32_t,uint32_t);
+    virtual void log(uint32_t,uint32_t,string const&);  
   };
 }
 

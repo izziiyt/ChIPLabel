@@ -56,9 +56,9 @@ namespace hhmm{
     long double& tmpTrans(baseHHMM* x,baseHHMM* y,nprodHHMM* z);
     MatrixXld& tmpTrans();
 
-    parameters(uint32_t,uint32_t,uint32_t,uint32_t,parameters*);
+    parameters(vector<uint32_t> const&,uint32_t,uint32_t,uint32_t,parameters*);
     parameters(uint32_t,uint32_t,uint32_t,parameters*);
-    parameters(uint32_t,uint32_t,uint32_t,uint32_t);
+    parameters(vector<uint32_t> const&,uint32_t,uint32_t);
     void transform();
     ~parameters() = default;
    };

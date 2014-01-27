@@ -27,8 +27,8 @@ namespace hhmm{
 
   public:
     parameters param;
-    Sequence(vector<VectorXld> const&,uint32_t,uint32_t,uint32_t);
-    Sequence(vector<uint32_t> const&,uint32_t,uint32_t,uint32_t);
+    Sequence(vector<VectorXld> const&,vector<uint32_t> const&,uint32_t);
+    //    Sequence(vector<uint32_t> const&,uint32_t,uint32_t,uint32_t);
     virtual ~Sequence() = default;
     //    uint32_t obs(uint32_t i) const{return testV[i];}
     VectorXld obs(uint32_t i) const{return V[i];}

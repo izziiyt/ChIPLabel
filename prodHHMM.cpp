@@ -112,12 +112,13 @@ namespace hhmm{
     }
   }
 
-  void prodHHMM::log(uint32_t loop,uint32_t ID)
+  void prodHHMM::log(uint32_t loop,uint32_t ID,string const& toDir)
   {
-    ofstream ofs("../data/log/state" + to_string(ID),ios::out | ios::app);
+    ofstream ofs(toDir + to_string(ID),ios::out | ios::app);
     ofs << "loop " << loop << endl;
-    ofs << mean.transpose() << endl;
-    ofs << var.diagonal().transpose() << endl;
+    ofs << "emitParent " << emitParent << endl;
+    ofs << "mean " << mean.transpose() << endl;
+    ofs << "variance " << var.diagonal().transpose() << endl;
     ofs.close();
   }
 }

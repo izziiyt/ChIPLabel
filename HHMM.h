@@ -32,7 +32,6 @@ namespace hhmm{
   private:
     nprodHHMM root;
     uint32_t dim;
-    uint32_t stateNum;
     uint32_t depth;
     vector<up<Sequence>> seq;
     
@@ -79,9 +78,9 @@ namespace hhmm{
     void viterbi(Sequence&,baseHHMM*,parameters*);
 
   public:
-    HHMM(uint32_t,uint32_t,uint32_t);
+    HHMM(vector<uint32_t> const&,uint32_t);
     void initParam(vector<long double> const&);
-    void EM(uint32_t);
+    void EM(uint32_t,string const&);
     void viterbi(Sequence&);
     vector<up<Sequence>>& setSeq(){return seq;};
     void check();

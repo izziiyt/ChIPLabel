@@ -2,11 +2,10 @@
 
 namespace hhmm{
 
-  HHMM::HHMM(uint32_t _dim,uint32_t _stateNum,uint32_t _depth)
-    :root(_depth,_stateNum,_dim),
+  HHMM::HHMM(vector<uint32_t> const& _stateNum,uint32_t _dim)
+    :root(_stateNum,_dim),
      dim(_dim),
-     stateNum(_stateNum),
-     depth(_depth){}
+     depth(_stateNum.size() + 1){}
 
   void HHMM::forward(Sequence& seq,baseHHMM* root,parameters* param)
   {
@@ -679,12 +678,12 @@ namespace hhmm{
   void HHMM::varianceStandardize(){
     varianceStandardize(&root);
   }
-  void HHMM::EM(uint32_t loop)
+  void HHMM::EM(uint32_t loop,string const& logDir)
   {
     for(uint32_t i=0;i<loop;++i){
 
-      //logging state's parameters
-      root.log(i,9);
+      //logging stat's parameters
+      root.log(i,9,logDir);
 
       //E-step by multi-threading
       #pragma omp parallel for
@@ -700,21 +699,23 @@ namespace hhmm{
         calcTmpTrans(*seq[j]);
         //calcTmpEmit(*seq[j]);
         calcTmpMean(*seq[j]);
-	//	cout << j << " " << "likelihood: " << likelihood(*seq[j]) << endl;
       }
 
-      long double lh = 0.0;
-      for(auto& s:seq){lh += likelihood(*s);}
-      lh /= seq.size();
-      cout << "mean of likelihoods " << lh << endl;
-      if(isnan(lh)){
-      	exit(1);
-      }
-
+      long double tmp = 0.0;
+      for(auto& s:seq){tmp += likelihood(*s);}
+      if(isnan(tmp) or isinf(tmp)){break;}
       
+      ofstream ofs(logDir + "seqlog",ios::out | ios::app);
+      for(uint32_t j=0;j<seq.size();++j){
+	
+	ofs << j << " " << "likelihood: " << log(likelihood(*seq[j])) << endl;
+      }
+      ofs.close();
+
       //M-step by single-threading
       clearParam();
       for(auto& s:seq){paramAssemble(*s);}
+      root.log(i,9,logDir);//log for appearence frecuency
       paramStandardize();
 
       
@@ -727,7 +728,6 @@ namespace hhmm{
       //M-step for the variance variables by single-threading
       for(auto& s:seq){varianceAssemble(*s);}
       varianceStandardize();
-      root.check();
     }
   }
 
@@ -832,15 +832,12 @@ namespace hhmm{
     viterbi(s,&root,&(s.param));
     s.state.resize(s.size(),0);
     backtrack(s,s.param,0,s.size(),0);
-    for(auto& a:s.state){cout << a << " ";}
-    cout << endl;
   }
 
   void HHMM::backtrack(Sequence& seq,parameters const& param,uint32_t begin,uint32_t end,uint32_t stack)
   {
     if(param.children.empty()){return;}
-    if(stack > 100){cout << "stack over flow" << endl;exit(1);}
-    cout << "backtrack" << begin << " " << end << endl;
+    if(stack > 10000){cout << "stack over flow" << endl;exit(1);}
     long double tmp = 0.0;
     uint32_t index = 0;
     for(uint32_t i=0;i<param.children.size();++i){
@@ -854,8 +851,7 @@ namespace hhmm{
 
   void HHMM::innerBacktrack(Sequence& seq,parameters const& param,uint32_t index,uint32_t begin,uint32_t end,uint32_t stack)
   {
-    if(stack > 100){cout << "stack over flow" << endl;exit(1);}
-    cout << "inner backtrack" << begin << " " << end << endl;
+    if(stack > 10000){cout << "stack over flow" << endl;exit(1);}
     auto tmpPhi = param.children[index]->phi(begin,end-1);
     auto tmpTau = param.children[index]->tau(begin,end-1);
     for(uint32_t i=tmpTau;i<end;++i){

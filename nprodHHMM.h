@@ -28,8 +28,8 @@ namespace hhmm{
     vector<up<baseHHMM>> children;
     map<uint64_t,uint32_t> convert;
 
-    nprodHHMM(uint32_t,uint32_t,uint32_t);
-    nprodHHMM(uint32_t,uint32_t,uint32_t,uint32_t,baseHHMM*);
+    nprodHHMM(vector<uint32_t> const&,uint32_t);
+    nprodHHMM(vector<uint32_t> const&,uint32_t,uint32_t,baseHHMM*);
     ~nprodHHMM() noexcept {};
     MatrixXld& trans();
     long double trans(up<baseHHMM> const&);
@@ -42,7 +42,7 @@ namespace hhmm{
     void clearParam();
     void initParam(vector<long double> const&);
     void check();
-    void log(uint32_t,uint32_t);
+    void log(uint32_t,uint32_t,string const&);
   };
 }
 

@@ -3,51 +3,44 @@
 namespace hhmm{
 
   //constructor for root Node.
-  nprodHHMM::nprodHHMM(uint32_t _depth,uint32_t _stateNum,uint32_t _dim)
+  nprodHHMM::nprodHHMM(vector<uint32_t> const& _stateNum,uint32_t _dim)
     :baseHHMM(0,nullptr),
-     transMat(_stateNum,_stateNum+1)
+     transMat(_stateNum[0],_stateNum[0]+1)
   {
-    if(_depth < 2){exit(1);}
-    else if(_depth == 2){
-      for(uint32_t t=0;t<_stateNum;++t){
-        children.push_back(up<baseHHMM>(new prodHHMM(1,_dim,this)));
-      }
-    }
+    if(_stateNum.size() < 2){exit(1);}
     else{
-      for(uint32_t t=0;t<_stateNum;++t){
-        children.push_back(up<baseHHMM>(new nprodHHMM(_depth,_stateNum,_dim,1,this)));
+      vector<uint32_t> nextNum(++begin(_stateNum),end(_stateNum));
+      for(uint32_t t=0;t<_stateNum[0];++t){
+        children.push_back(up<baseHHMM>(new nprodHHMM(nextNum,_dim,1,this)));
       }
     }
     uint32_t i;
     for(i=0;i<children.size();++i){
-      convert.insert(pair<uint64_t,uint32_t>\
-                     (reinterpret_cast<uint64_t>(children[i].get()),i));
+      convert.insert(pair<uint64_t,uint32_t>(reinterpret_cast<uint64_t>(children[i].get()),i));
     }
     convert.insert(pair<uint64_t,uint32_t>(0,i));
     pi = 1.0;
   }
-
+  
   //constructor for not-root Node
-  nprodHHMM::nprodHHMM(uint32_t _depth,uint32_t _stateNum,              \
-                       uint32_t _dim,uint32_t _level,baseHHMM* _parent)
+  nprodHHMM::nprodHHMM(vector<uint32_t> const& _stateNum,uint32_t _dim,uint32_t _level,baseHHMM* _parent)
     :baseHHMM(_level,_parent),
-     transMat(_stateNum,_stateNum+1)
+     transMat(_stateNum[0],_stateNum[0]+1)
   {
-    if(level < _depth-2){
-      for(uint32_t t=0;t<_stateNum;++t){
-        children.push_back(up<baseHHMM>                       \
-                           (new nprodHHMM(_depth,_stateNum,_dim,_level+1,this)));
+    if(_stateNum.size() > 1){
+      vector<uint32_t> nextNum(++begin(_stateNum),end(_stateNum));
+      for(uint32_t t=0;t<_stateNum[0];++t){
+        children.push_back(up<baseHHMM>(new nprodHHMM(nextNum,_dim,_level+1,this)));
       }
     }
-    else if(level == _depth-2){
-      for(uint32_t t=0;t<_stateNum;++t){
+    else if(_stateNum.size() == 1){
+      for(uint32_t t=0;t<_stateNum[0];++t){
         children.push_back(up<baseHHMM>(new prodHHMM(_level+1,_dim,this)));
       }
     }
     uint32_t i;
     for(i=0;i<children.size();++i){
-      convert.insert(pair<uint64_t,uint32_t>                            \
-                     (reinterpret_cast<uint64_t>(children[i].get()),i));
+      convert.insert(pair<uint64_t,uint32_t>(reinterpret_cast<uint64_t>(children[i].get()),i));
     }
     convert.insert(pair<uint64_t,uint32_t>(0,i));
   }
@@ -135,9 +128,9 @@ namespace hhmm{
     for(auto& c:children){c->check();}
   }
 
-  void nprodHHMM::log(uint32_t loop,uint32_t ID)
+  void nprodHHMM::log(uint32_t loop,uint32_t ID,string const& toDir)
   {
-    ofstream ofs("../data/log/state" + to_string(ID),ios::out | ios::app);
+    ofstream ofs(toDir + to_string(ID),ios::out | ios::app);
     ofs << "loop " << loop << endl;
     for(auto& c:children){
       ofs << c->getPi() << " ";
@@ -145,7 +138,7 @@ namespace hhmm{
     ofs << endl;
     ofs << transMat << endl;
     for(uint32_t i=0;i<children.size();++i){
-      children[i]->log(loop,ID*10+i);
+      children[i]->log(loop,ID*10+i,toDir);
     }
   }
 }
