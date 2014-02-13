@@ -130,7 +130,7 @@ namespace hhmm{
 
   void nprodHHMM::log(uint32_t loop,uint32_t ID,string const& toDir)
   {
-    ofstream ofs(toDir + to_string(ID),ios::out | ios::app);
+    ofstream ofs(toDir + "state/" + to_string(ID),ios::out | ios::app);
     ofs << "loop " << loop << endl;
     for(auto& c:children){
       ofs << c->getPi() << " ";

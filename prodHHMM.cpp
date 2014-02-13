@@ -14,21 +14,6 @@ namespace hhmm{
   {
     long double mom = sqrt(pow(2 * M_PI,mean.size()) * var.diagonal().prod());
     long double son = exp(-0.5 * (O - mean).transpose() * var.inverse() * (O - mean));
-    //    if(isnan(son)){
-    //      return 1;
-    //    }
-    //    if(isnan(son/mom)){
-    //      cout << "emit problem" << endl;
-    //      cout << mom << endl;
-    //      cout << son << endl;
-    //      cout << "----------------------------" << endl;
-    //      cout << mean << endl;
-    //      cout << "----------------------------" << endl;
-    //      cout << var.diagonal() << endl;
-    //      cout << "----------------------------" << endl;
-    //      cout << O << endl;
-    //      exit(1);
-    //    }
     return son/mom;
   }
 
@@ -114,7 +99,7 @@ namespace hhmm{
 
   void prodHHMM::log(uint32_t loop,uint32_t ID,string const& toDir)
   {
-    ofstream ofs(toDir + to_string(ID),ios::out | ios::app);
+    ofstream ofs(toDir + "state/" + to_string(ID),ios::out | ios::app);
     ofs << "loop " << loop << endl;
     ofs << "emitParent " << emitParent << endl;
     ofs << "mean " << mean.transpose() << endl;

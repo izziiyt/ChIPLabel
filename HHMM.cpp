@@ -705,9 +705,8 @@ namespace hhmm{
       for(auto& s:seq){tmp += likelihood(*s);}
       if(isnan(tmp) or isinf(tmp)){break;}
       
-      ofstream ofs(logDir + "seqlog",ios::out | ios::app);
+      ofstream ofs(logDir + "seq/seqlog",ios::out | ios::app);
       for(uint32_t j=0;j<seq.size();++j){
-	
 	ofs << j << " " << "likelihood: " << log(likelihood(*seq[j])) << endl;
       }
       ofs.close();
@@ -717,7 +716,6 @@ namespace hhmm{
       for(auto& s:seq){paramAssemble(*s);}
       root.log(i,9,logDir);//log for appearence frecuency
       paramStandardize();
-
       
       //E-step for the variance variables by multi-threading
       #pragma omp parallel for
@@ -830,7 +828,10 @@ namespace hhmm{
   void HHMM::viterbi(Sequence& s)
   {
     viterbi(s,&root,&(s.param));
+    cout <<"koko" << endl;
     s.state.resize(s.size(),0);
+    cout <<"soko" << endl;
+    cout << s.size() << endl;
     backtrack(s,s.param,0,s.size(),0);
   }
 
